@@ -40,6 +40,52 @@
             padding: 10px 0;
             margin-top: 100px; /* Assurer que le footer n'est pas masqué par le message */
         }
+
+        /* Hero Section avec Image de fond */
+        .hero-section {
+            background-image: url('https://via.placeholder.com/1200x600?text=Bienvenue+sur+mon+site');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 50px 0;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        /* Animation fadeIn */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #333;
+            z-index: 9999;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .navbar a {
+            color: white !important;
+        }
+
+        /* Section manga/animé */
+        #anime-section {
+            margin-top: 100px;
+            display: none;
+        }
+
+        #anime-section img {
+            width: 70%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -72,7 +118,21 @@
         <span>Merci d'avoir exploré mon site ! 🎉</span>
     </div>
 
-    <!-- Contenu principal du site -->
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-4">Bienvenue sur mon Super Site</h1>
+            <p class="lead">Ceci est un site créé avec **Bootstrap** et un peu de style personnalisé. Explorez et profitez !</p>
+            <a href="#about" class="btn btn-custom btn-lg">Découvrir plus</a>
+        </div>
+    </section>
+
+    <!-- Section pour afficher l'animé ou manga -->
+    <section id="anime-section">
+        <img id="anime-img" src="" alt="Anime ou Manga" />
+    </section>
+
+    <!-- About Section -->
     <section id="about" class="container my-5">
         <div class="row">
             <div class="col-lg-6">
