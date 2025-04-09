@@ -59,8 +59,7 @@
     let rightPressed = false;
 
     let obstacles = [];
-    let obstacleSpeed = 3;
-
+    let obstacleSpeed = 2;  // Vitesse réduite pour rendre le jeu plus facile
     let gameOver = false;
 
     // Fonction pour démarrer la musique
@@ -72,8 +71,12 @@
         });
     }
 
-    // Lancer la musique dès le début
-    startMusic();
+    // Ajouter un clic pour démarrer la musique (contournement de la restriction de lecture automatique)
+    window.addEventListener('click', () => {
+        if (gameMusic.paused) {
+            startMusic();
+        }
+    });
 
     // Écoute des touches
     document.addEventListener('keydown', (e) => {
@@ -169,7 +172,7 @@
         requestAnimationFrame(update);
     }
 
-    setInterval(generateObstacle, 2000); // Générer un nouvel obstacle toutes les 2 secondes
+    setInterval(generateObstacle, 3000); // Générer un nouvel obstacle toutes les 3 secondes pour diminuer la difficulté
     update();
 </script>
 
