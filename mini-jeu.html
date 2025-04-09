@@ -3,53 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Jeu</title>
+    <title>Mini Jeu de Course</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            padding-top: 100px;
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            margin: 0;
+            overflow: hidden;
         }
 
-        .game-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            width: 300px;
+        #gameCanvas {
+            display: block;
             margin: 0 auto;
+            background-color: #444;
         }
 
-        .game-container button {
-            padding: 10px 20px;
-            font-size: 18px;
-            background-color: #FF5733;
+        .game-over {
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            font-size: 30px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
         }
 
-        .game-container button:hover {
-            background-color: #C70039;
-        }
     </style>
 </head>
 <body>
 
-    <div class="game-container">
-        <h2>Mini Jeu</h2>
-        <p>Appuyez sur le bouton pour gagner !</p>
-        <button onclick="gagner()">Gagner</button>
-    </div>
+<canvas id="gameCanvas" width="400" height="600"></canvas>
+<div class="game-over" id="gameOverText">Game Over! Appuyez sur R pour recommencer</div>
 
-    <script> 
-        function gagner() {
-            alert("Félicitations ! Vous avez gagné ! 🎉");
-            window.location.href = "index.html"; // Redirige vers la page principale après avoir gagné
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Position du joueur
+    let playerX = canvas.width / 2 - 25;
+    const playerY = canvas.height - 100;
+    const playerWidth = 50;
+    const playerHeight = 80;
+    let moveLeft = false;
+    let moveRight = false;
+
+    // Obstacles
+    let obstacles = [];
+    let obstacleSpeed = 3;
+
+    // Score
+    let score = 0;
+
+    // Game Over
+    let gameOver = false;
+
+    // Écouteur de touches
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") moveLeft = true;
+        if (e.key === "ArrowRight") moveRight = true;
+        if (e.key === "r" && gameOver) restartGame();
+    });
+
+    document.addEventListener("keyup", (e) => {
+        if (e.key === "ArrowLeft") moveLeft = false;
+        if (e.key === "ArrowRight") moveRight = false;
+    });
+
+    // Fonction pour générer des obstacles
+    function generateObstacle() {
+        let x = Math.random() * (canvas.width - 50);
+        obstacles.push({ x, y: -50 });
+    }
+
+    // Fonction pour dessiner la voiture du joueur
+    function drawPlayer() {
+        ctx.fillStyle = "#00f";
+        ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
+    }
+
+    // Fonction pour dessiner les obstacles
+    function drawObstacles() {
+        ctx.fillStyle = "#f00";
+        obstacles.forEach((obstacle, index) => {
+            ctx.fillRect(obstacle.x, obstacle.y, 50, 50);
+            obstacle.y += obstacleSpeed;
+
+            // Vérification collision
+            if (
+                obstacle.y + 50 >= playerY &&
+                obstacle.x < playerX + playerWidth &&
+                obstacle.x + 50 > playerX
+            ) {
+                gameOver = true;
+            }
+
+            if (obstacle.y > canvas.height) {
+                obstacles.splice(index, 1); // Supprimer les obstacles sortis de l'écran
+                score++;
+            }
+        });
+    }
+
+    // Fonction pour dessiner le score
+    function drawScore() {
+        ctx.fillStyle = "#fff";
+        ctx.font = "20px Arial";
+        ctx.fillText("Score: " + score, 10, 30);
+    }
+
+    // Fonction pour mettre à jour le jeu
+    function updateGame() {
+        if (gameOver) {
+            document.getElementById("gameOverText").style.display = "block";
+            return;
         }
-    </script>
 
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        drawPlayer();
+        drawObstacles();
+        drawScore();
+
+        if (moveLeft && playerX > 0) playerX -= 5;
+        if (moveRight && playerX < canvas.width - playerWidth) playerX += 5;
+
+        // Générer de nouveaux obstacles à intervalles réguliers
+        if (Math.random() < 0.02) generateObstacle();
+
+        requestAnimationFrame(updateGame); // Boucle de jeu
+    }
+
+    // Fonction pour redémarrer le jeu
+    function restartGame() {
+        gameOver = false;
+        obstacles = [];
+        score = 0;
+        playerX = canvas.width / 2 - 25;
+        document.getElementById("gameOverText").style.display = "none";
+        updateGame();
+    }
+
+    // Démarrer le jeu
+    updateGame();
+
+</script>
 </body>
 </html>
