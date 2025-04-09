@@ -6,94 +6,22 @@
     <title>Mon Super Site</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Style personnalisé */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            padding-top: 70px; /* Assurer qu'il y ait de l'espace sous la navbar */
-            text-align: center;
-        }
-
-        /* Hero Section avec Image de fond */
-        .hero-section {
-            background-image: url('https://via.placeholder.com/1200x600?text=Bienvenue+sur+mon+site');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 50px 0;
-            animation: fadeIn 2s ease-in-out;
-        }
-
-        /* Animation fadeIn */
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        .hero-section h1, .hero-section p {
-            animation: fadeIn 2s ease-in-out;
-        }
-
-        /* Footer */
-        .footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-
-        .btn-custom {
-            background-color: #FF5733;
-            color: white;
-            padding: 12px 20px;
-            font-size: 18px;
-            border-radius: 5px;
-        }
-
-        .btn-custom:hover {
-            background-color: #C70039;
-        }
-
-        /* Carrousel */
-        .carousel-item img {
-            max-height: 400px;
-            object-fit: cover;
-        }
-
-        /* Barre de navigation sticky */
-        .navbar {
-            background-color: #333;
-            z-index: 9999; /* Assurer que la navbar reste au-dessus des autres éléments */
-            position: fixed; /* Fixe la navbar en haut */
-            width: 100%; /* S'assurer qu'elle occupe toute la largeur */
-            top: 0; /* Ancre la navbar tout en haut */
-            left: 0; /* S'assurer qu'elle commence à gauche */
-        }
-
-        .navbar a {
-            color: white !important;
-        }
-
-        /* Section manga/animé */
-        #anime-section {
-            margin-top: 100px;
+        /* Style pour l'animation du message de remerciement */
+        #thank-you-message {
             display: none;
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            font-size: 20px;
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            animation: fadeIn 2s ease-in-out;
         }
 
-        #anime-section img {
-            width: 70%;
-            max-width: 500px;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        /* Animation pour l'image */
+        /* Animation fade-in */
         @keyframes fadeIn {
             0% {
                 opacity: 0;
@@ -101,6 +29,12 @@
             100% {
                 opacity: 1;
             }
+        }
+
+        /* Message de remerciement à afficher */
+        #thank-you-message span {
+            font-weight: bold;
+            font-size: 24px;
         }
     </style>
 </head>
@@ -129,31 +63,17 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container">
-            <h1 class="display-4">Bienvenue sur mon Super Site</h1>
-            <p class="lead">Ceci est un site créé avec **Bootstrap** et un peu de style personnalisé. Explorez et profitez !</p>
-            <a href="#about" class="btn btn-custom btn-lg">Découvrir plus</a>
-        </div>
-    </section>
+    <!-- Message de remerciement -->
+    <div id="thank-you-message">
+        <span>Merci d'avoir exploré mon site ! 🎉</span>
+    </div>
 
-    <!-- Section pour afficher l'animé ou manga -->
-    <section id="anime-section">
-        <img id="anime-img" src="" alt="Anime ou Manga" />
-    </section>
-
-    <!-- About Section -->
+    <!-- Contenu principal du site -->
     <section id="about" class="container my-5">
         <div class="row">
             <div class="col-lg-6">
                 <h2>Qui suis-je ?</h2>
-                <p>
-                    Mon objectif est de développer une **identité en ligne forte** en partageant mes passions, créations et découvertes. Ce site est l'extension de mon projet, un moyen de te faire découvrir mes dernières réalisations.
-                </p>
-                <p>
-                    Pour plus de contenu, visite ma chaîne YouTube où je publie des vidéos sur des jeux vidéo, des tutoriels et des critiques.
-                </p>
+                <p>Mon objectif est de développer une **identité en ligne forte** en partageant mes passions, créations et découvertes. Ce site est l'extension de mon projet, un moyen de te faire découvrir mes dernières réalisations.</p>
             </div>
             <div class="col-lg-6">
                 <h2>Ce que je fais</h2>
@@ -175,34 +95,25 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JavaScript pour gérer la touche pressée et afficher l'image -->
+    <!-- JavaScript pour détecter la séquence de touches et afficher le message -->
     <script>
-        // Fonction qui capture la touche pressée
+        let keySequence = []; // Tableau pour suivre les touches appuyées
+        const secretSequence = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; // La séquence à détecter
+        const messageDiv = document.getElementById('thank-you-message');
+
         document.addEventListener('keydown', function(event) {
-            let letter = event.key.toLowerCase();  // Convertir en minuscule pour la gestion
-
-            // Section où l'animé ou manga sera affiché
-            let animeSection = document.getElementById('anime-section');
-            let animeImg = document.getElementById('anime-img');
-
-            // Définir l'image en fonction de la touche pressée
-            switch(letter) {
-                case 'a':
-                    animeImg.src = 'https://upload.wikimedia.org/wikipedia/commons/7/70/Naruto_logo.svg'; // Exemple d'image pour Naruto
-                    break;
-                case 'b':
-                    animeImg.src = 'https://upload.wikimedia.org/wikipedia/commons/1/14/One_Piece_logo.svg'; // Exemple d'image pour One Piece
-                    break;
-                case 'c':
-                    animeImg.src = 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Dragon_Ball_Z_logo.svg'; // Exemple d'image pour Dragon Ball Z
-                    break;
-                default:
-                    animeSection.style.display = 'none'; // Si la lettre n'est pas définie, on cache l'image
-                    return;
+            keySequence.push(event.key); // Ajouter la touche appuyée à la séquence
+            if (keySequence.length > secretSequence.length) {
+                keySequence.shift(); // Si la séquence devient trop longue, on retire la première touche
             }
 
-            // Afficher la section avec l'image correspondante
-            animeSection.style.display = 'block';
+            // Vérifier si la séquence correspond à celle de l'easter egg
+            if (keySequence.join(',') === secretSequence.join(',')) {
+                messageDiv.style.display = 'block'; // Afficher le message de remerciement
+                setTimeout(() => {
+                    messageDiv.style.display = 'none'; // Cacher après un certain temps
+                }, 3000);
+            }
         });
     </script>
 </body>
