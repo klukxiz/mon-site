@@ -63,9 +63,19 @@
 
     let gameOver = false;
 
-    // Démarrer la musique au chargement
-    gameMusic.play().catch(e => console.log('Erreur de lecture de la musique', e));
+    // Fonction pour démarrer la musique
+    function startMusic() {
+        gameMusic.play().catch(e => {
+            console.log('Erreur de lecture de la musique', e);
+            gameMusic.load(); // Recharger la musique pour tenter une autre lecture
+            gameMusic.play();
+        });
+    }
 
+    // Lancer la musique dès le début
+    startMusic();
+
+    // Écoute des touches
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') {
             leftPressed = true;
@@ -84,6 +94,7 @@
         }
     });
 
+    // Génération des obstacles
     function generateObstacle() {
         let obstacleWidth = Math.random() * (canvas.width - 30) + 30;
         let obstacleX = Math.random() * (canvas.width - obstacleWidth);
@@ -91,11 +102,13 @@
         obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
     }
 
+    // Dessiner la voiture
     function drawCar() {
         ctx.fillStyle = 'red';
         ctx.fillRect(carX, carY, carWidth, carHeight);
     }
 
+    // Dessiner les obstacles
     function drawObstacles() {
         ctx.fillStyle = 'blue';
         for (let i = 0; i < obstacles.length; i++) {
@@ -104,6 +117,7 @@
         }
     }
 
+    // Déplacer les obstacles
     function moveObstacles() {
         for (let i = 0; i < obstacles.length; i++) {
             obstacles[i].y += obstacleSpeed;
@@ -113,25 +127,27 @@
         obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
     }
 
+    // Détecter la collision
     function checkCollision() {
         for (let i = 0; i < obstacles.length; i++) {
             let obstacle = obstacles[i];
-            // Vérifier la collision entre la voiture et l'obstacle
             if (carX < obstacle.x + obstacle.width &&
                 carX + carWidth > obstacle.x &&
                 carY < obstacle.y + obstacle.height &&
                 carY + carHeight > obstacle.y) {
+                // Si collision, arrêt du jeu et redirection
                 gameOver = true;
                 gameOverText.style.display = 'block';
                 gameMusic.pause();
-                gameMusic.currentTime = 0; // Réinitialiser la musique
+                gameMusic.currentTime = 0;
                 setTimeout(() => {
-                    window.location.href = 'index.html'; // Rediriger vers la page principale après 3 secondes
+                    window.location.href = 'index.html'; // Rediriger vers la page principale
                 }, 3000);
             }
         }
     }
 
+    // Mise à jour du jeu
     function update() {
         if (gameOver) return;
 
