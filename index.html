@@ -113,6 +113,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
 
         .game-popup button {
@@ -127,6 +128,17 @@
 
         .game-popup button:hover {
             background-color: #C70039;
+        }
+
+        /* Confettis */
+        .confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9999;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -214,6 +226,11 @@
         messageDiv.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
         messageDiv.innerHTML = '<h2>Merci beaucoup ! 🎉</h2>';
         document.body.appendChild(messageDiv);
+
+        // Ajouter le conteneur des confettis
+        const confettiContainer = document.createElement('div');
+        confettiContainer.className = 'confetti-container';
+        document.body.appendChild(confettiContainer);
 
         // Fonction qui capture la touche pressée
         document.addEventListener('keydown', function(event) {
