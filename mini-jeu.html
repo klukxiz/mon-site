@@ -1,112 +1,74 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Mini-jeu de course - Klukxiz</title>
+  <meta charset="UTF-8" />
+  <title>Mini jeu de course</title>
   <style>
     body {
       margin: 0;
-      background-color: #222;
+      background: #000;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       height: 100vh;
-      flex-direction: column;
-      font-family: Arial, sans-serif;
+      overflow: hidden;
       color: white;
+      font-family: sans-serif;
     }
 
     canvas {
-      border: 3px solid white;
-      background-color: #f0f0f0;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-    }
-
-    #gameOverText {
-      font-size: 24px;
-      margin-top: 20px;
-      display: none;
-    }
-
-    #backBtn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: white;
-      color: #222;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.2s;
-    }
-
-    #backBtn:hover {
-      background-color: #ddd;
+      background: #111;
+      border: 2px solid white;
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="600" height="400"></canvas>
-  <div id="gameOverText">🎉 Collision ! Merci d'avoir joué !</div>
-  <button id="backBtn" onclick="window.location.href='index.html'">Retour au site</button>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
 
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    const player = { x: 50, y: 200, width: 40, height: 40, color: "#3498db" };
-    const obstacle = { x: 600, y: Math.random() * 360, width: 30, height: 30, color: "#e74c3c" };
-    const keys = {};
-    let speed = 5;
-    let gameRunning = true;
+    let car = { x: 175, y: 500, width: 50, height: 100, color: "red" };
+    let roadLines = [];
 
-    window.addEventListener("keydown", e => keys[e.key] = true);
-    window.addEventListener("keyup", e => keys[e.key] = false);
+    function drawCar() {
+      ctx.fillStyle = car.color;
+      ctx.fillRect(car.x, car.y, car.width, car.height);
+    }
+
+    function drawRoadLines() {
+      ctx.fillStyle = "white";
+      roadLines.forEach((line) => {
+        ctx.fillRect(line.x, line.y, line.width, line.height);
+        line.y += 5;
+      });
+      if (roadLines[0].y > canvas.height) {
+        roadLines.shift();
+        roadLines.push({ x: 195, y: -40, width: 10, height: 40 });
+      }
+    }
 
     function update() {
-      if (!gameRunning) return;
-
-      if (keys["ArrowUp"] && player.y > 0) player.y -= speed;
-      if (keys["ArrowDown"] && player.y + player.height < canvas.height) player.y += speed;
-
-      obstacle.x -= speed;
-      if (obstacle.x < -obstacle.width) {
-        obstacle.x = canvas.width;
-        obstacle.y = Math.random() * (canvas.height - obstacle.height);
-      }
-
-      if (
-        player.x < obstacle.x + obstacle.width &&
-        player.x + player.width > obstacle.x &&
-        player.y < obstacle.y + obstacle.height &&
-        player.y + player.height > obstacle.y
-      ) {
-        endGame();
-      }
-    }
-
-    function draw() {
-      if (!gameRunning) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-      ctx.fillStyle = obstacle.color;
-      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      drawRoadLines();
+      drawCar();
+      requestAnimationFrame(update);
     }
 
-    function gameLoop() {
+    function init() {
+      for (let i = 0; i < 10; i++) {
+        roadLines.push({ x: 195, y: i * 60, width: 10, height: 40 });
+      }
       update();
-      draw();
     }
 
-    const loop = setInterval(gameLoop, 20);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft" && car.x > 0) car.x -= 10;
+      if (e.key === "ArrowRight" && car.x + car.width < canvas.width) car.x += 10;
+    });
 
-    function endGame() {
-      gameRunning = false;
-      clearInterval(loop);
-      document.getElementById("gameOverText").style.display = 'block';
-    }
+    init();
   </script>
 </body>
 </html>
-
