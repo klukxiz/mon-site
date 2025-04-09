@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Jeu</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding-top: 100px;
+        }
+
+        .game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        .game-container button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #FF5733;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .game-container button:hover {
+            background-color: #C70039;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h2>Mini Jeu</h2>
+        <p>Appuyez sur le bouton pour gagner !</p>
+        <button onclick="gagner()">Gagner</button>
+    </div>
+
+    <script> 
+        function gagner() {
+            alert("Félicitations ! Vous avez gagné ! 🎉");
+            window.location.href = "index.html"; // Redirige vers la page principale après avoir gagné
+        }
+    </script>
+
+</body>
+</html>
