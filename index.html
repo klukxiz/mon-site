@@ -35,42 +35,6 @@
             text-align: center;
             padding: 10px 0;
         }
-
-        .game-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .game-popup button {
-            padding: 10px 20px;
-            font-size: 18px;
-            background-color: #FF5733;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .game-popup button:hover {
-            background-color: #C70039;
-        }
-
-        .confetti-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 9999;
-            pointer-events: none;
-        }
     </style>
 </head>
 <body>
@@ -106,29 +70,10 @@
         <p>&copy; 2025 Mon Super Site. Tous droits réservés.</p>
     </div>
 
-    <!-- Confetti JS -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti"></script>
-
+    <!-- JavaScript pour la séquence de touches -->
     <script>
         let keySequence = [];
         const secretSequence = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-        const messageDiv = document.createElement('div');
-        messageDiv.style.display = 'none';
-        messageDiv.style.position = 'fixed';
-        messageDiv.style.top = '50%';
-        messageDiv.style.left = '50%';
-        messageDiv.style.transform = 'translate(-50%, -50%)';
-        messageDiv.style.background = 'white';
-        messageDiv.style.padding = '20px';
-        messageDiv.style.borderRadius = '10px';
-        messageDiv.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-        messageDiv.innerHTML = '<h2>Merci beaucoup ! 🎉</h2>';
-        document.body.appendChild(messageDiv);
-
-        // Ajouter le conteneur des confettis
-        const confettiContainer = document.createElement('div');
-        confettiContainer.className = 'confetti-container';
-        document.body.appendChild(confettiContainer);
 
         // Fonction pour gérer la séquence de touches
         document.addEventListener('keydown', function(event) {
@@ -138,45 +83,10 @@
             }
 
             if (keySequence.join(',') === secretSequence.join(',')) {
-                // Afficher le message de remerciement
-                messageDiv.style.display = 'block';
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 3000);
-
-                // Lancer les confettis
-                confetti();
-
-                // Afficher le mini-jeu
-                showMiniGame();
+                // Rediriger vers une sous-page avec un mini-jeu
+                window.location.href = "mini-jeu.html"; // Remplacer "mini-jeu.html" par le nom de votre page
             }
         });
-
-        // Lancer les confettis
-        function confetti() {
-            canvasConfetti({
-                particleCount: 100,
-                spread: 90,
-                origin: { x: 0.5, y: 0.5 }
-            });
-        }
-
-        // Afficher un mini-jeu simple
-        function showMiniGame() {
-            let gamePopup = document.createElement('div');
-            gamePopup.className = 'game-popup';
-            gamePopup.innerHTML = `
-                <h3>Mini Jeu !</h3>
-                <p>Click sur le bouton ci-dessous pour gagner !</p>
-                <button id="game-btn">Gagner</button>
-            `;
-            document.body.appendChild(gamePopup);
-
-            document.getElementById('game-btn').addEventListener('click', () => {
-                alert('Félicitations ! Vous avez gagné ! 🎉');
-                gamePopup.remove(); // Fermer le mini-jeu après la victoire
-            });
-        }
     </script>
 </body>
 </html>
