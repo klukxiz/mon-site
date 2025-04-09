@@ -19,9 +19,10 @@
         }
 
         .game-container {
-            width: 100%;
-            height: 100%;
+            width: 80%;
+            height: 80%;
             position: relative;
+            border: 2px solid white;
         }
 
         .car {
@@ -31,12 +32,12 @@
             width: 50px;
             height: 100px;
             background-color: red;
+            transform: translateX(-50%);
         }
 
         .obstacle {
             position: absolute;
             top: -100px;
-            left: 50%;
             width: 50px;
             height: 100px;
             background-color: blue;
@@ -55,12 +56,6 @@
             font-size: 24px;
         }
 
-        /* Animation pour augmenter la vitesse */
-        @keyframes speedUp {
-            0% { animation-duration: 3s; }
-            100% { animation-duration: 1s; }
-        }
-
         #gameOver {
             display: none;
             position: absolute;
@@ -69,14 +64,6 @@
             transform: translate(-50%, -50%);
             font-size: 48px;
             color: red;
-        }
-
-        /* Style pour le score */
-        #score {
-            position: absolute;
-            font-size: 24px;
-            top: 20px;
-            left: 20px;
         }
     </style>
 </head>
@@ -145,6 +132,7 @@
                     gameOver = true;
                     gameOverDisplay.style.display = "block";
                     music.pause();
+                    music.currentTime = 0; // Réinitialise la musique
                 } else {
                     score++;
                     scoreDisplay.textContent = "Score: " + score;
