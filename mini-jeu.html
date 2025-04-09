@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jeu de Voiture</title>
+    <title>Jeu de Voiture avec Musique</title>
     <style>
         body {
             background-color: #f4f4f4;
@@ -41,14 +41,24 @@
 </head>
 <body>
 
+    <!-- Canvas du jeu -->
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <!-- Affichage du score -->
     <div class="score">Score: 0</div>
     <div class="gameOver">GAME OVER</div>
+
+    <!-- Balise audio pour la musique -->
+    <audio id="gameMusic" loop>
+        <source src="path/to/your/music.mp3" type="audio/mp3">
+        Votre navigateur ne prend pas en charge la balise audio.
+    </audio>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
+        // Variables du jeu
         const carWidth = 50;
         const carHeight = 100;
         let carX = canvas.width / 2 - carWidth / 2;
@@ -58,13 +68,12 @@
         let gameInterval;
         let score = 0;
         let gameOver = false;
-        let backgroundColor = "#444";  // Changer la couleur de fond pour les effets visuels
 
-        // Voiture
+        // Chargement de la voiture
         const car = new Image();
         car.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Car_icon.svg/120px-Car_icon.svg.png";
 
-        // Générer les obstacles
+        // Fonction de génération des obstacles
         function generateObstacle() {
             const gap = Math.random() * (canvas.width - 150);
             obstacles.push({
@@ -76,7 +85,7 @@
             });
         }
 
-        // Mettre à jour la position de la voiture
+        // Mettre à jour la voiture
         function updateCar() {
             if (leftPressed && carX > 0) {
                 carX -= carSpeed;
@@ -86,39 +95,29 @@
             }
         }
 
-        // Mettre à jour les obstacles et leur vitesse
+        // Mettre à jour les obstacles
         function updateObstacles() {
             obstacles.forEach(obstacle => {
                 obstacle.y += obstacle.speed;
                 if (obstacle.y > canvas.height) {
                     score++;
-                    obstacles.shift(); // Supprimer l'obstacle une fois qu'il est hors de l'écran
+                    obstacles.shift(); // Supprimer l'obstacle lorsqu'il sort de l'écran
                 }
 
-                // Collision avec la voiture
+                // Vérifier les collisions
                 if (carX < obstacle.x + obstacle.width && carX + carWidth > obstacle.x && carY < obstacle.y + obstacle.height && carY + carHeight > obstacle.y) {
                     gameOver = true;
                     clearInterval(gameInterval);
                     document.querySelector(".gameOver").style.display = "block";
+                    stopMusic(); // Arrêter la musique lorsque le jeu est terminé
                 }
             });
         }
 
-        // Augmenter la vitesse du jeu à chaque score
-        function increaseSpeed() {
-            if (score % 10 === 0 && score > 0) { // Tous les 10 points, augmenter la vitesse
-                carSpeed += 0.5;  // Augmenter la vitesse de la voiture
-                obstacles.forEach(obstacle => {
-                    obstacle.speed += 0.5;  // Augmenter la vitesse des obstacles
-                });
-                score++; // S'assurer que le score n'est pas doublé quand on augmente la vitesse
-            }
-        }
-
         // Dessiner tout (voiture, obstacles, score)
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Effacer le canvas
-            ctx.fillStyle = backgroundColor; // Fond dynamique
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#444"; // Fond du jeu
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Dessiner la voiture
@@ -161,7 +160,6 @@
             if (!gameOver) {
                 updateCar();
                 updateObstacles();
-                increaseSpeed();
                 draw();
             }
         }
@@ -170,6 +168,20 @@
         function startGame() {
             gameInterval = setInterval(gameLoop, 1000 / 60); // 60 FPS
             setInterval(generateObstacle, 2000); // Générer un obstacle toutes les 2 secondes
+            playMusic(); // Lancer la musique dès que le jeu commence
+        }
+
+        // Lancer la musique
+        function playMusic() {
+            const music = document.getElementById("gameMusic");
+            music.play(); // Démarrer la musique
+        }
+
+        // Arrêter la musique
+        function stopMusic() {
+            const music = document.getElementById("gameMusic");
+            music.pause(); // Arrêter la musique
+            music.currentTime = 0; // Revenir au début
         }
 
         startGame();
