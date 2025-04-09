@@ -1,107 +1,112 @@
-<script>
-    const secretCode = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-    let userInput = [];
-
-    // Empêche le comportement par défaut (scroll ou rafraîchissement)
-    document.addEventListener("keydown", function(event) {
-        const keysToBlock = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-        if (keysToBlock.includes(event.key)) {
-            event.preventDefault();
-        }
-
-        userInput.push(event.key);
-        if (userInput.length > secretCode.length) {
-            userInput.shift();
-        }
-
-        if (JSON.stringify(userInput) === JSON.stringify(secretCode)) {
-            startMiniGame();
-        }
-    });
-
-    function startMiniGame() {
-        // Crée dynamiquement la zone de jeu
-        const gameContainer = document.createElement("div");
-        gameContainer.innerHTML = `
-            <style>
-                #gameCanvas {
-                    border: 2px solid black;
-                    display: block;
-                    margin: 30px auto;
-                    background: #f0f0f0;
-                }
-                #gameOverText {
-                    text-align: center;
-                    font-size: 24px;
-                    font-weight: bold;
-                    display: none;
-                    color: red;
-                }
-            </style>
-            <canvas id="gameCanvas" width="600" height="400"></canvas>
-            <div id="gameOverText">🎉 Merci d'avoir trouvé l'easter egg !</div>
-        `;
-        document.body.appendChild(gameContainer);
-
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-
-        let player = { x: 50, y: 200, width: 40, height: 40, color: "#3498db" };
-        let obstacle = { x: 600, y: Math.random() * 360, width: 30, height: 30, color: "#e74c3c" };
-        let speed = 5;
-        const keys = {};
-
-        window.addEventListener("keydown", function(e) {
-            keys[e.key] = true;
-        });
-
-        window.addEventListener("keyup", function(e) {
-            keys[e.key] = false;
-        });
-
-        function update() {
-            if (keys["ArrowUp"] && player.y > 0) player.y -= speed;
-            if (keys["ArrowDown"] && player.y + player.height < canvas.height) player.y += speed;
-
-            obstacle.x -= speed;
-            if (obstacle.x < -obstacle.width) {
-                obstacle.x = canvas.width;
-                obstacle.y = Math.random() * (canvas.height - obstacle.height);
-            }
-
-            // Collision
-            if (
-                player.x < obstacle.x + obstacle.width &&
-                player.x + player.width > obstacle.x &&
-                player.y < obstacle.y + obstacle.height &&
-                player.y + player.height > obstacle.y
-            ) {
-                endGame();
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Player
-            ctx.fillStyle = player.color;
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-
-            // Obstacle
-            ctx.fillStyle = obstacle.color;
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-        }
-
-        function gameLoop() {
-            update();
-            draw();
-        }
-
-        const gameInterval = setInterval(gameLoop, 20);
-
-        function endGame() {
-            clearInterval(gameInterval);
-            document.getElementById("gameOverText").style.display = 'block';
-        }
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini-jeu de course - Klukxiz</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+      color: white;
     }
-</script>
+
+    canvas {
+      border: 3px solid white;
+      background-color: #f0f0f0;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    #gameOverText {
+      font-size: 24px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    #backBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: white;
+      color: #222;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    #backBtn:hover {
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
+  <div id="gameOverText">🎉 Collision ! Merci d'avoir joué !</div>
+  <button id="backBtn" onclick="window.location.href='index.html'">Retour au site</button>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const player = { x: 50, y: 200, width: 40, height: 40, color: "#3498db" };
+    const obstacle = { x: 600, y: Math.random() * 360, width: 30, height: 30, color: "#e74c3c" };
+    const keys = {};
+    let speed = 5;
+    let gameRunning = true;
+
+    window.addEventListener("keydown", e => keys[e.key] = true);
+    window.addEventListener("keyup", e => keys[e.key] = false);
+
+    function update() {
+      if (!gameRunning) return;
+
+      if (keys["ArrowUp"] && player.y > 0) player.y -= speed;
+      if (keys["ArrowDown"] && player.y + player.height < canvas.height) player.y += speed;
+
+      obstacle.x -= speed;
+      if (obstacle.x < -obstacle.width) {
+        obstacle.x = canvas.width;
+        obstacle.y = Math.random() * (canvas.height - obstacle.height);
+      }
+
+      if (
+        player.x < obstacle.x + obstacle.width &&
+        player.x + player.width > obstacle.x &&
+        player.y < obstacle.y + obstacle.height &&
+        player.y + player.height > obstacle.y
+      ) {
+        endGame();
+      }
+    }
+
+    function draw() {
+      if (!gameRunning) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+      ctx.fillStyle = obstacle.color;
+      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+    }
+
+    const loop = setInterval(gameLoop, 20);
+
+    function endGame() {
+      gameRunning = false;
+      clearInterval(loop);
+      document.getElementById("gameOverText").style.display = 'block';
+    }
+  </script>
+</body>
+</html>
+
