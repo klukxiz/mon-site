@@ -63,8 +63,8 @@
 
     let gameOver = false;
 
-    // Musique
-    gameMusic.play();
+    // Démarrer la musique au chargement
+    gameMusic.play().catch(e => console.log('Erreur de lecture de la musique', e));
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') {
@@ -125,6 +125,9 @@
                 gameOverText.style.display = 'block';
                 gameMusic.pause();
                 gameMusic.currentTime = 0; // Réinitialiser la musique
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // Rediriger vers la page principale après 3 secondes
+                }, 3000);
             }
         }
     }
