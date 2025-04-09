@@ -10,7 +10,8 @@
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
-            padding-top: 70px; /* Ajouter un padding pour éviter que le contenu soit masqué par la barre de navigation */
+            padding-top: 70px; /* Assurer qu'il y ait de l'espace sous la navbar */
+            text-align: center;
         }
 
         /* Hero Section avec Image de fond */
@@ -20,7 +21,6 @@
             background-position: center;
             color: white;
             padding: 50px 0;
-            text-align: center;
             animation: fadeIn 2s ease-in-out;
         }
 
@@ -70,18 +70,44 @@
         /* Barre de navigation sticky */
         .navbar {
             background-color: #333;
-            z-index: 1000; /* S'assurer que la barre reste au-dessus du contenu */
+            z-index: 9999; /* Assurer que la navbar reste au-dessus des autres éléments */
+            position: fixed; /* Fixe la navbar en haut */
+            width: 100%; /* S'assurer qu'elle occupe toute la largeur */
+            top: 0; /* Ancre la navbar tout en haut */
+            left: 0; /* S'assurer qu'elle commence à gauche */
         }
 
         .navbar a {
             color: white !important;
+        }
+
+        /* Section manga/animé */
+        #anime-section {
+            margin-top: 100px;
+            display: none;
+        }
+
+        #anime-section img {
+            width: 70%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Animation pour l'image */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
 
     <!-- Barre de navigation sticky -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="#">Mon Super Site</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -112,6 +138,12 @@
         </div>
     </section>
 
+    <!-- Section pour afficher l'animé ou manga -->
+    <section id="anime-section">
+        <h2>Votre Animé ou Manga selon la touche pressée</h2>
+        <img id="anime-img" src="" alt="Anime ou Manga" />
+    </section>
+
     <!-- About Section -->
     <section id="about" class="container my-5">
         <div class="row">
@@ -130,48 +162,6 @@
         </div>
     </section>
 
-    <!-- Gallery Section (Carrousel d'images) -->
-    <section id="gallery" class="container my-5">
-        <h2 class="text-center">Galerie</h2>
-        <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img src="https://via.placeholder.com/800x400?text=Image+1" class="d-block w-100" alt="Image 1">
-                </div>
-                <div class="carousel-item">
-                    <img src="https://via.placeholder.com/800x400?text=Image+2" class="d-block w-100" alt="Image 2">
-                </div>
-                <div class="carousel-item">
-                    <img src="https://via.placeholder.com/800x400?text=Image+3" class="d-block w-100" alt="Image 3">
-                </div>
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="container my-5">
-        <h2 class="text-center">Contactez-moi</h2>
-        <form action="https://formspree.io/f/ton-email" method="POST">
-            <div class="mb-3">
-                <label for="name" class="form-label">Nom</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Entrez votre nom" required>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Entrez votre email" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-lg">Envoyer</button>
-        </form>
-    </section>
-
     <!-- Footer -->
     <div class="footer">
         <p>&copy; 2025 Mon Super Site. Tous droits réservés.</p>
@@ -179,6 +169,39 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript pour gérer la touche pressée et afficher l'image -->
+    <script>
+        // Fonction qui capture la touche pressée
+        document.addEventListener('keydown', function(event) {
+            let letter = event.key.toLowerCase();  // Convertir en minuscule pour la gestion
+
+            // Section où l'animé ou manga sera affiché
+            let animeSection = document.getElementById('anime-section');
+            let animeImg = document.getElementById('anime-img');
+
+            // Définir l'image en fonction de la touche pressée
+            switch(letter) {
+                case 'a':
+                    animeImg.src = 'https://via.placeholder.com/500x300?text=Anime+A'; // Exemple d'image pour la lettre A
+                    break;
+                case 'b':
+                    animeImg.src = 'https://via.placeholder.com/500x300?text=Anime+B'; // Exemple d'image pour la lettre B
+                    break;
+                case 'c':
+                    animeImg.src = 'https://via.placeholder.com/500x300?text=Anime+C'; // Exemple d'image pour la lettre C
+                    break;
+                // Ajoute ici d'autres lettres si nécessaire
+                default:
+                    animeSection.style.display = 'none'; // Si la lettre n'est pas définie, on cache l'image
+                    return;
+            }
+
+            // Afficher la section avec l'image correspondante
+            animeSection.style.display = 'block';
+        });
+    </script>
 </body>
 </html>
+
 
