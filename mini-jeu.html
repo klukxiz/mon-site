@@ -116,6 +116,7 @@
     function checkCollision() {
         for (let i = 0; i < obstacles.length; i++) {
             let obstacle = obstacles[i];
+            // Vérifier la collision entre la voiture et l'obstacle
             if (carX < obstacle.x + obstacle.width &&
                 carX + carWidth > obstacle.x &&
                 carY < obstacle.y + obstacle.height &&
@@ -123,6 +124,7 @@
                 gameOver = true;
                 gameOverText.style.display = 'block';
                 gameMusic.pause();
+                gameMusic.currentTime = 0; // Réinitialiser la musique
             }
         }
     }
@@ -132,6 +134,7 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Déplacement de la voiture
         if (leftPressed && carX > 0) {
             carX -= carSpeed;
         }
