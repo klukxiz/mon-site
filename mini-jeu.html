@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #87CEEB;
+            background-color: #87CEEB; /* Ciel bleu */
         }
 
         canvas {
@@ -50,6 +50,11 @@ let car = {
 
 // Charger l'image de la voiture
 car.image.src = 'assetsmusic/car.png'; // Assure-toi que l'image est dans le dossier "assets"
+
+// Vérifier que l'image est bien chargée avant de la dessiner
+car.image.onload = function() {
+    console.log("Image chargée avec succès !");
+};
 
 // Obstacle
 let obstacles = [];
