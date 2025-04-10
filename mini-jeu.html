@@ -6,51 +6,25 @@
     <title>Mini-jeu voiture réaliste</title>
     <style>
         body {
-            background-color: #333;
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background-color: #87CEEB;
         }
 
-        #gameCanvas {
-            background-color: #87CEEB;
+        canvas {
             display: block;
             margin: 0 auto;
-            position: relative;
         }
 
-        /* Style pour la voiture avec une image */
         #car {
             position: absolute;
             width: 70px;
             height: 140px;
-            background-image: url('assets/car.png'); /* Utilise une image de voiture */
-            background-size: contain;
-            background-repeat: no-repeat;
-            transition: transform 0.1s ease; /* Ajout de la transition pour la rotation */
+            background-image: url('assetsmusic/car.png'); /* Utilise une image de voiture */
+            background-size: cover;
+            transition: transform 0.1s ease;
         }
-
-        /* Effets visuels comme les traces de pneus */
-        .smoke {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: gray;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: smoke 1s ease-in-out infinite;
-        }
-
-        @keyframes smoke {
-            0% {
-                transform: scale(0.5);
-            }
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-        }
-
     </style>
 </head>
 <body>
@@ -75,13 +49,13 @@ let car = {
 };
 
 // Charger l'image de la voiture
-car.image.src = 'assets/car.png'; // Assure-toi que l'image est dans le dossier "assets"
+car.image.src = 'assetsmusic/car.png'; // Assure-toi que l'image est dans le dossier "assets"
 
 // Obstacle
 let obstacles = [];
 let score = 0;
 
-// Fonction pour dessiner la voiture avec rotation
+// Fonction pour dessiner la voiture
 function drawCar() {
     ctx.save();
     ctx.translate(car.x + car.width / 2, car.y + car.height / 2); // Déplacer le centre de rotation
@@ -201,6 +175,7 @@ let gameInterval = setInterval(function() {
 
 // Générer des obstacles toutes les 2 secondes
 setInterval(generateObstacles, 2000);
+
 </script>
 
 </body>
