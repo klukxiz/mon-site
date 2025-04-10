@@ -20,6 +20,24 @@
             font-size: 24px;
             color: white;
         }
+
+        #leaderboard {
+            margin-top: 20px;
+            color: white;
+        }
+
+        #leaderboard h2 {
+            font-size: 20px;
+        }
+
+        #leaderboard ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #leaderboard li {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -41,6 +59,13 @@
     ">Quitter le jeu</button>
 
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList">
+            <!-- Liste des meilleurs scores -->
+        </ul>
+    </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -102,17 +127,14 @@
 
             // Déplacer les fantômes (suivre Pac-Man)
             ghosts.forEach(ghost => {
-                // Calculer le vecteur directionnel du fantôme vers Pac-Man
                 let angle = Math.atan2(pacman.y - ghost.y, pacman.x - ghost.x);
                 ghost.dx = Math.cos(angle) * ghost.speed;  // Vitesse constante
                 ghost.dy = Math.sin(angle) * ghost.speed;
 
-                // Vérifier la distance avec les autres fantômes pour éviter les collisions
                 ghosts.forEach((otherGhost, otherIndex) => {
                     if (ghost !== otherGhost) {
                         let distance = Math.hypot(ghost.x - otherGhost.x, ghost.y - otherGhost.y);
                         if (distance < ghost.radius * 2) {
-                            // Ajuster légèrement la direction du fantôme pour éviter la collision
                             ghost.dx *= -1;
                             ghost.dy *= -1;
                         }
@@ -122,7 +144,6 @@
                 ghost.x += ghost.dx;
                 ghost.y += ghost.dy;
 
-                // Collision avec les bords pour les fantômes
                 if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
                 if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
             });
@@ -130,13 +151,12 @@
             // Détecter la collision avec les pastilles
             pills.forEach((pill, index) => {
                 if (Math.hypot(pill.x - pacman.x, pill.y - pacman.y) < pacman.radius + 5) {
-                    pills.splice(index, 1); // Retire la pastille
-                    score += 10; // Ajoute des points
+                    pills.splice(index, 1);
+                    score += 10;
                     document.getElementById('score').textContent = 'Score: ' + score;
 
-                    // Si le score atteint un multiple de 100, augmenter la vitesse des fantômes et ajouter un fantôme
                     if (score % 100 === 0) {
-                        ghosts.forEach(ghost => ghost.speed += 0.2); // Augmente la vitesse des fantômes
+                        ghosts.forEach(ghost => ghost.speed += 0.2);
                         ghosts.push({
                             x: Math.random() * canvas.width,
                             y: Math.random() * canvas.height,
@@ -159,12 +179,12 @@
             ghosts.forEach(ghost => {
                 if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < ghost.radius + pacman.radius) {
                     // Game Over: Réinitialisation du jeu
+                    saveScore(score); // Sauvegarde du score lorsqu'on perd
                     alert("Game Over! Votre score : " + score);
                     location.reload(); // Recharge la page pour recommencer
                 }
             });
 
-            // Dessiner Pac-Man, les fantômes et les pastilles
             drawPacMan();
             drawGhosts();
             drawPills();
@@ -178,7 +198,6 @@
             if (event.key === 'ArrowRight') pacman.dx = pacman.speed;
         });
 
-        // Fonction pour arrêter Pac-Man lorsqu'une touche est relâchée
         document.addEventListener('keyup', function(event) {
             if (event.key === 'ArrowUp' || event.key === 'ArrowDown') pacman.dy = 0;
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') pacman.dx = 0;
@@ -186,22 +205,45 @@
 
         // Fonction pour générer des pastilles
         function generatePills() {
-            for (let i = 0; i < 10; i++) { // Crée 10 pastilles
+            for (let i = 0; i < 10; i++) {
                 let x = Math.random() * (canvas.width - 10) + 5;
                 let y = Math.random() * (canvas.height - 10) + 5;
                 pills.push({ x, y });
             }
         }
 
-        // Fonction pour obtenir une couleur aléatoire pour les fantômes
         function getRandomColor() {
             const colors = ['red', 'blue', 'green', 'pink', 'yellow'];
             return colors[Math.floor(Math.random() * colors.length)];
         }
 
+        // Fonction pour sauvegarder le score dans localStorage
+        function saveScore(newScore) {
+            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            leaderboard.push(newScore);
+            leaderboard.sort((a, b) => b - a); // Tri des scores du plus élevé au plus bas
+            leaderboard = leaderboard.slice(0, 5); // Garder uniquement les 5 meilleurs scores
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            updateLeaderboard();
+        }
+
+        // Fonction pour afficher le leaderboard
+        function updateLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            const leaderboardList = document.getElementById('leaderboardList');
+            leaderboardList.innerHTML = ''; // Réinitialise la liste
+
+            leaderboard.forEach(score => {
+                const li = document.createElement('li');
+                li.textContent = `Score: ${score}`;
+                leaderboardList.appendChild(li);
+            });
+        }
+
         // Fonction d'initialisation du jeu
         function init() {
             generatePills();
+            updateLeaderboard(); // Affiche le leaderboard au démarrage
             setInterval(updateGame, 20); // Met à jour le jeu toutes les 20ms
         }
 
@@ -210,6 +252,7 @@
 
 </body>
 </html>
+
 
 
 
