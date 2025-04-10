@@ -68,6 +68,7 @@
         let pills = [];
         let score = 0;
         let playerName = prompt("Entrez votre pseudo");
+        let lastScoreMultiple = 0;  // Variable pour suivre les multiples de 100
 
         // Fonction pour dessiner Pac-Man
         function drawPacMan() {
@@ -142,9 +143,10 @@
                 generatePills();
             }
 
-            // Ajouter un fantôme tous les 100 points
-            if (score % 100 === 0 && score !== 0) {
+            // Ajouter un fantôme tous les 100 points, mais seulement si un multiple de 100 n'a pas encore été atteint
+            if (score % 100 === 0 && score !== lastScoreMultiple) {
                 addGhost();
+                lastScoreMultiple = score;  // Met à jour le dernier multiple atteint
             }
 
             // Détecter la collision avec un fantôme
@@ -209,4 +211,5 @@
 
 </body>
 </html>
+
 
