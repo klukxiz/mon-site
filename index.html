@@ -65,6 +65,22 @@
         </div>
     </section>
 
+    <!-- Mini-Jeux Section -->
+    <section id="mini-games" class="container my-5">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>Mini-jeu Voiture</h2>
+                <p>Évite les obstacles et essaie de rouler aussi longtemps que possible !</p>
+                <a href="mini-jeu-voiture.html" class="btn btn-custom btn-lg">Jouer à Voiture</a>
+            </div>
+            <div class="col-lg-6">
+                <h2>Mini-jeu Pac-Man</h2>
+                <p>Attrape toutes les pastilles tout en évitant les fantômes !</p>
+                <a href="mini-jeu-pacman.html" class="btn btn-custom btn-lg">Jouer à Pac-Man</a>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <div class="footer">
         <p>&copy; 2025 Mon Super Site. Tous droits réservés.</p>
@@ -73,20 +89,29 @@
     <!-- JavaScript pour la séquence de touches -->
     <script>
         let keySequence = [];
-        const secretSequence = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+        const secretSequenceVoiture = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; // Séquence pour le jeu de voiture
+        const secretSequencePacman = ['ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; // Séquence pour le jeu Pac-Man
 
         // Fonction pour gérer la séquence de touches
         document.addEventListener('keydown', function(event) {
             keySequence.push(event.key);
-            if (keySequence.length > secretSequence.length) {
+            if (keySequence.length > secretSequenceVoiture.length) {
                 keySequence.shift(); // On retire la première touche si la séquence est trop longue
             }
 
-            if (keySequence.join(',') === secretSequence.join(',')) {
-                // Rediriger vers une sous-page avec un mini-jeu
-                window.location.href = "mini-jeu.html"; // Remplacer "mini-jeu.html" par le nom de votre page
+            // Si la séquence pour le jeu de voiture est correcte
+            if (keySequence.join(',') === secretSequenceVoiture.join(',')) {
+                // Rediriger vers le mini-jeu de la voiture
+                window.location.href = "mini-jeu-voiture.html";
+            }
+
+            // Si la séquence pour le jeu Pac-Man est correcte
+            if (keySequence.join(',') === secretSequencePacman.join(',')) {
+                // Rediriger vers le mini-jeu de Pac-Man
+                window.location.href = "mini-jeu-pacman.html";
             }
         });
     </script>
+
 </body>
 </html>
