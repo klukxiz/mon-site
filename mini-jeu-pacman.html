@@ -100,8 +100,12 @@
             if (pacman.y < pacman.radius) pacman.y = pacman.radius;
             if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
 
-            // Déplacer les fantômes
+            // Déplacer les fantômes (suivre Pac-Man)
             ghosts.forEach(ghost => {
+                // Calculer le vecteur directionnel du fantôme vers Pac-Man
+                let angle = Math.atan2(pacman.y - ghost.y, pacman.x - ghost.x);
+                ghost.dx = Math.cos(angle) * 1;  // Vitesse constante
+                ghost.dy = Math.sin(angle) * 1;
                 ghost.x += ghost.dx;
                 ghost.y += ghost.dy;
 
@@ -118,6 +122,11 @@
                     document.getElementById('score').textContent = 'Score: ' + score;
                 }
             });
+
+            // Si toutes les pastilles ont été mangées, régénérer des pastilles
+            if (pills.length === 0) {
+                generatePills();
+            }
 
             // Détecter la collision avec un fantôme
             ghosts.forEach(ghost => {
@@ -168,5 +177,6 @@
 
 </body>
 </html>
+
 
 
