@@ -1,95 +1,128 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Mini Jeu</title>
-    <style>
-        canvas {
-            display: block;
-            margin: 50px auto;
-            background: #444;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mini Jeu</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #222;
+      font-family: Arial, sans-serif;
+    }
+
+    canvas {
+      display: block;
+      background-color: #333;
+      margin: 0 auto;
+      border: 2px solid #fff;
+    }
+
+    #playMusicBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      background-color: #ff4757;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease;
+    }
+
+    #playMusicBtn:hover {
+      background-color: #e84118;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <!-- Canvas du jeu -->
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
 
-    <!-- Balise audio cachée avec autoplay -->
-    <audio id="gameMusic" src="assets/music/musique.mp3" autoplay loop></audio>
+  <!-- Bouton musique -->
+  <button id="playMusicBtn">🎵 Lancer la musique</button>
+  <audio id="gameMusic" src="assets/music/musique.mp3" loop></audio>
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
+  <script>
+    // Lancer la musique
+    const music = document.getElementById("gameMusic");
+    const playBtn = document.getElementById("playMusicBtn");
 
-        const player = { x: 180, y: 500, width: 40, height: 40, color: "cyan" };
-        let obstacles = [];
-        let speed = 2;
-        let frameCount = 0;
+    playBtn.addEventListener("click", () => {
+      music.play().then(() => {
+        console.log("Musique lancée !");
+        playBtn.style.display = "none";
+      }).catch(err => {
+        console.error("Erreur : ", err);
+      });
+    });
 
-        function drawPlayer() {
-            ctx.fillStyle = player.color;
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+    // Petit jeu : une voiture évite des obstacles (exemple simplifié)
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const car = { x: 275, y: 350, width: 50, height: 30, speed: 5 };
+    const obstacles = [];
+    let gameOver = false;
+
+    function drawCar() {
+      ctx.fillStyle = "#0f0";
+      ctx.fillRect(car.x, car.y, car.width, car.height);
+    }
+
+    function drawObstacles() {
+      ctx.fillStyle = "#f00";
+      obstacles.forEach(ob => {
+        ctx.fillRect(ob.x, ob.y, ob.width, ob.height);
+        ob.y += ob.speed;
+      });
+    }
+
+    function spawnObstacle() {
+      const width = 40;
+      const x = Math.random() * (canvas.width - width);
+      obstacles.push({ x, y: 0, width, height: 20, speed: 3 });
+    }
+
+    function checkCollision() {
+      for (let ob of obstacles) {
+        if (
+          car.x < ob.x + ob.width &&
+          car.x + car.width > ob.x &&
+          car.y < ob.y + ob.height &&
+          car.y + car.height > ob.y
+        ) {
+          gameOver = true;
+          music.pause();
+          alert("BOUM ! Collision !");
+          window.location.href = "index.html";
         }
+      }
+    }
 
-        function drawObstacles() {
-            ctx.fillStyle = "red";
-            obstacles.forEach(obstacle => {
-                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-                obstacle.y += speed;
-            });
-        }
+    function gameLoop() {
+      if (gameOver) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCar();
+      drawObstacles();
+      checkCollision();
+      requestAnimationFrame(gameLoop);
+    }
 
-        function detectCollision() {
-            for (let obs of obstacles) {
-                if (
-                    player.x < obs.x + obs.width &&
-                    player.x + player.width > obs.x &&
-                    player.y < obs.y + obs.height &&
-                    player.y + player.height > obs.y
-                ) {
-                    window.location.href = "index.html";
-                }
-            }
-        }
+    setInterval(spawnObstacle, 1000);
 
-        function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlayer();
-            drawObstacles();
-            detectCollision();
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft" && car.x > 0) car.x -= car.speed;
+      if (e.key === "ArrowRight" && car.x + car.width < canvas.width)
+        car.x += car.speed;
+    });
 
-            // Ajouter un nouvel obstacle toutes les 100 frames
-            frameCount++;
-            if (frameCount % 100 === 0) {
-                obstacles.push({
-                    x: Math.random() * (canvas.width - 40),
-                    y: -50,
-                    width: 40,
-                    height: 40,
-                });
-                speed += 0.2;
-            }
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Contrôles
-        document.addEventListener("keydown", function(e) {
-            if (e.key === "ArrowLeft" && player.x > 0) {
-                player.x -= 20;
-            }
-            if (e.key === "ArrowRight" && player.x + player.width < canvas.width) {
-                player.x += 20;
-            }
-        });
-
-        // Lancer le jeu
-        gameLoop();
-
-        // Lecture de la musique (pour les navigateurs qui bloquent autoplay)
-        window.addEventListener("click", () => {
-            document.getElementById("gameMusic").play();
-        });
-    </script>
+    gameLoop();
+  </script>
 </body>
 </html>
