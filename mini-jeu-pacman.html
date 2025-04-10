@@ -1,1 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-jeu Pac-Man</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #111;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = 600;
+        canvas.height = 400;
+
+        const pacman = {
+            x: 100,
+            y: 100,
+            radius: 20,
+            speed: 5,
+            dx: 0,
+            dy: 0,
+        };
+
+        const pellets = [];
+        const totalPellets = 10;
+
+        // Fonction pour dessiner Pac-Man
+        function drawPacMan() {
+            ctx.beginPath();
+            ctx.arc(pacman.x, pacman.y, pacman.radius, 0.2 * Math.PI, 1.8 * Math.PI);
+            ctx.lineTo(pacman.x, pacman.y);
+            ctx.fillStyle = "yellow";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Fonction pour dessiner les pastilles
+        function drawPellets() {
+            ctx.fillStyle = "#FF6347"; // Couleur pastille
+            pellets.forEach(pellet => {
+                ctx.beginPath();
+                ctx.arc(pellet.x, pellet.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Générer les pastilles
+        function generatePellets() {
+            for (let i = 0; i < totalPellets; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                pellets.push({ x, y });
+            }
+        }
+
+        // Détecter les collisions avec les pastilles
+        function checkCollisions() {
+            for (let i = 0; i < pellets.length; i++) {
+                const pellet = pellets[i];
+                const dist = Math.sqrt((pacman.x - pellet.x) ** 2 + (pacman.y - pellet.y) ** 2);
+                if (dist < pacman.radius + 5) {
+                    pellets.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+        // Mise à jour du jeu
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Effacer le canvas
+            drawPacMan();
+            drawPellets();
+            checkCollisions();
+            movePacMan();
+            if (pellets.length === 0) {
+                alert("Tu as mangé toutes les pastilles ! Game Over.");
+                window.location.href = '/'; // Rediriger vers la page d’accueil
+            }
+
+            requestAnimationFrame(updateGame);
+        }
+
+        // Déplacement de Pac-Man
+        function movePacMan() {
+            pacman.x += pacman.dx;
+            pacman.y += pacman.dy;
+
+            if (pacman.x < pacman.radius) pacman.x = pacman.radius;
+            if (pacman.x > canvas.width - pacman.radius) pacman.x = canvas.width - pacman.radius;
+            if (pacman.y < pacman.radius) pacman.y = pacman.radius;
+            if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
+        }
+
+        // Écouter les touches du clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') pacman.dy = -pacman.speed;
+            if (e.key === 'ArrowDown') pacman.dy = pacman.speed;
+            if (e.key === 'ArrowLeft') pacman.dx = -pacman.speed;
+            if (e.key === 'ArrowRight') pacman.dx = pacman.speed;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') pacman.dy = 0;
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') pacman.dx = 0;
+        });
+
+        // Initialisation du jeu
+        generatePellets();
+        updateGame();
+    </script>
+</body>
+</html>
 
