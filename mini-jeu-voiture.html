@@ -118,6 +118,11 @@
                     car.y + car.height > obstacle.y) {
                     gameOver = true;
                     document.getElementById('gameOver').style.display = 'block';
+
+                    // Redirection après 2 secondes
+                    setTimeout(() => {
+                        window.location.href = 'index.html'; // Redirection vers la page principale
+                    }, 2000);
                 }
             });
         }
