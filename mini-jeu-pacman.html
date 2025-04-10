@@ -35,13 +35,12 @@
         const ctx = canvas.getContext('2d');
 
         let pacman = { x: 100, y: 100, radius: 15, dx: 0, dy: 0, speed: 5 };
-        let score = 0;
-        let walls = [
-            { x: 50, y: 50, width: 700, height: 10 },  // Top Wall
-            { x: 50, y: 550, width: 700, height: 10 }, // Bottom Wall
-            { x: 50, y: 50, width: 10, height: 500 },  // Left Wall
-            { x: 740, y: 50, width: 10, height: 500 }, // Right Wall
+        let ghosts = [
+            { x: 500, y: 100, radius: 20, dx: 1, dy: 0, color: 'red' },
+            { x: 600, y: 300, radius: 20, dx: -1, dy: 0, color: 'blue' }
         ];
+        let pills = [];
+        let score = 0;
 
         // Fonction pour dessiner Pac-Man
         function drawPacMan() {
@@ -53,26 +52,26 @@
             ctx.closePath();
         }
 
-        // Fonction pour dessiner les murs
-        function drawWalls() {
-            ctx.fillStyle = 'blue';
-            walls.forEach(wall => {
-                ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+        // Fonction pour dessiner les fantômes
+        function drawGhosts() {
+            ghosts.forEach(ghost => {
+                ctx.beginPath();
+                ctx.arc(ghost.x, ghost.y, ghost.radius, 0, 2 * Math.PI); // Fantômes ronds
+                ctx.fillStyle = ghost.color;
+                ctx.fill();
+                ctx.closePath();
             });
         }
 
-        // Fonction pour détecter les collisions avec les murs
-        function checkCollisions() {
-            for (let wall of walls) {
-                if (pacman.x + pacman.radius > wall.x && pacman.x - pacman.radius < wall.x + wall.width &&
-                    pacman.y + pacman.radius > wall.y && pacman.y - pacman.radius < wall.y + wall.height) {
-                    // Collision avec un mur, pacman s'arrête
-                    pacman.dx = 0;
-                    pacman.dy = 0;
-                    return true; // Retourne true si collision
-                }
-            }
-            return false; // Pas de collision
+        // Fonction pour dessiner les pastilles
+        function drawPills() {
+            pills.forEach(pill => {
+                ctx.beginPath();
+                ctx.arc(pill.x, pill.y, 5, 0, 2 * Math.PI); // Pastilles
+                ctx.fillStyle = 'white';
+                ctx.fill();
+                ctx.closePath();
+            });
         }
 
         // Fonction pour mettre à jour le jeu
@@ -83,18 +82,44 @@
             pacman.x += pacman.dx;
             pacman.y += pacman.dy;
 
-            // Vérifier les collisions avec les murs
-            if (checkCollisions()) {
-                // Si collision, remettre Pac-Man à sa position initiale
-                pacman.x = 100;
-                pacman.y = 100;
-                score = 0; // Réinitialiser le score
-                document.getElementById('score').textContent = 'Score: ' + score;
-            }
+            // Collision avec les bords
+            if (pacman.x < pacman.radius) pacman.x = pacman.radius;
+            if (pacman.x > canvas.width - pacman.radius) pacman.x = canvas.width - pacman.radius;
+            if (pacman.y < pacman.radius) pacman.y = pacman.radius;
+            if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
 
-            // Dessiner les murs, Pac-Man et le score
-            drawWalls();
+            // Déplacer les fantômes
+            ghosts.forEach(ghost => {
+                ghost.x += ghost.dx;
+                ghost.y += ghost.dy;
+
+                // Collision avec les bords pour les fantômes
+                if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
+                if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
+            });
+
+            // Détecter la collision avec les pastilles
+            pills.forEach((pill, index) => {
+                if (Math.hypot(pill.x - pacman.x, pill.y - pacman.y) < pacman.radius + 5) {
+                    pills.splice(index, 1); // Retire la pastille
+                    score += 10; // Ajoute des points
+                    document.getElementById('score').textContent = 'Score: ' + score;
+                }
+            });
+
+            // Détecter la collision avec un fantôme
+            ghosts.forEach(ghost => {
+                if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < ghost.radius + pacman.radius) {
+                    // Game Over: Réinitialisation du jeu
+                    alert("Game Over! Votre score : " + score);
+                    location.reload(); // Recharge la page pour recommencer
+                }
+            });
+
+            // Dessiner Pac-Man, les fantômes et les pastilles
             drawPacMan();
+            drawGhosts();
+            drawPills();
         }
 
         // Fonction pour contrôler Pac-Man avec les touches fléchées
@@ -105,8 +130,18 @@
             if (event.key === 'ArrowRight') pacman.dx = pacman.speed;
         });
 
+        // Fonction pour générer des pastilles
+        function generatePills() {
+            for (let i = 0; i < 10; i++) { // Crée 10 pastilles
+                let x = Math.random() * (canvas.width - 10) + 5;
+                let y = Math.random() * (canvas.height - 10) + 5;
+                pills.push({ x, y });
+            }
+        }
+
         // Fonction d'initialisation du jeu
         function init() {
+            generatePills();
             setInterval(updateGame, 20); // Met à jour le jeu toutes les 20ms
         }
 
