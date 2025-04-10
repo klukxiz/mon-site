@@ -28,7 +28,20 @@
     <p>Attrapez toutes les pastilles !</p>
     <p id="score">Score: 0</p>
 
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+<!-- Bouton Quitter le jeu -->
+<button onclick="window.location.href='index.html'" style="
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #FF5733;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+">Quitter le jeu</button>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
 
     <script>
         const canvas = document.getElementById('gameCanvas');
