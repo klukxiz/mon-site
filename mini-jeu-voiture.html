@@ -12,27 +12,8 @@
         }
 
         canvas {
-            background-color: #333;
+            background-color: black;
             border: 1px solid black;
-            display: block;
-            margin: 0 auto;
-        }
-
-        #score {
-            font-size: 24px;
-            color: white;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
-
-        #gameOver {
-            font-size: 36px;
-            color: red;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
         }
     </style>
 </head>
@@ -40,133 +21,102 @@
 
     <h1>Mini-Jeu Voiture</h1>
     <p>Évitez les obstacles !</p>
+    <p id="score">Score: 0</p>
 
-    <div id="score">Score: 0</div>
-    <div id="gameOver" style="display: none;">Game Over</div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+
         let score = 0;
-        let gameOver = false;
-
-        // Position de la voiture
-        const car = {
-            x: canvas.width / 2 - 25,
-            y: canvas.height - 60,
-            width: 50,
-            height: 100,
-            speed: 5,
-            color: 'blue'
-        };
-
-        // Tableau des obstacles
+        let carColor = 'blue'; // Couleur initiale de la voiture
+        let obstacleColor = 'red'; // Couleur initiale des obstacles
         let obstacles = [];
-        const obstacleWidth = 50;
-        const obstacleHeight = 100;
+        let car = { x: 375, y: 500, width: 50, height: 100, speed: 5 };
 
-        // Gérer les mouvements de la voiture
-        let keys = {};
-
-        document.addEventListener('keydown', (e) => {
-            keys[e.key] = true;
-        });
-
-        document.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
-
-        // Créer des obstacles aléatoires
-        function createObstacle() {
-            const obstacle = {
-                x: Math.random() * (canvas.width - obstacleWidth),
-                y: -obstacleHeight,
-                width: obstacleWidth,
-                height: obstacleHeight,
-                speed: Math.random() * 2 + 3
-            };
-            obstacles.push(obstacle);
-        }
-
-        // Mettre à jour le score
-        function updateScore() {
-            score++;
-            document.getElementById('score').textContent = `Score: ${score}`;
-        }
-
-        // Dessiner la voiture
+        // Fonction pour dessiner la voiture
         function drawCar() {
-            ctx.fillStyle = car.color;
+            ctx.fillStyle = carColor;
             ctx.fillRect(car.x, car.y, car.width, car.height);
         }
 
-        // Dessiner les obstacles
+        // Fonction pour dessiner les obstacles
         function drawObstacles() {
-            ctx.fillStyle = 'red';
-            obstacles.forEach((obstacle) => {
-                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            });
-        }
-
-        // Vérifier les collisions avec les obstacles
-        function checkCollisions() {
-            obstacles.forEach((obstacle) => {
-                if (car.x < obstacle.x + obstacle.width &&
-                    car.x + car.width > obstacle.x &&
-                    car.y < obstacle.y + obstacle.height &&
-                    car.y + car.height > obstacle.y) {
-                    gameOver = true;
-                    document.getElementById('gameOver').style.display = 'block';
-
-                    // Redirection après 2 secondes
-                    setTimeout(() => {
-                        window.location.replace('index.html'); // Utilisation de replace pour rediriger
-                    }, 2000);
-                }
-            });
-        }
-
-        // Déplacer la voiture
-        function moveCar() {
-            if (keys['ArrowLeft'] && car.x > 0) {
-                car.x -= car.speed;
-            }
-            if (keys['ArrowRight'] && car.x < canvas.width - car.width) {
-                car.x += car.speed;
+            ctx.fillStyle = obstacleColor;
+            for (let i = 0; i < obstacles.length; i++) {
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
             }
         }
 
-        // Déplacer les obstacles
+        // Fonction pour déplacer les obstacles
         function moveObstacles() {
-            obstacles.forEach((obstacle, index) => {
-                obstacle.y += obstacle.speed;
-                if (obstacle.y > canvas.height) {
-                    obstacles.splice(index, 1); // Supprimer l'obstacle une fois qu'il sort du canvas
-                    updateScore(); // Augmenter le score à chaque obstacle évité
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += 5; // Vitesse de descente des obstacles
+                if (obstacles[i].y > canvas.height) {
+                    obstacles[i].y = -obstacles[i].height; // Réinitialise la position de l'obstacle
+                    obstacles[i].x = Math.random() * (canvas.width - obstacles[i].width); // Nouvelle position aléatoire
+                    score++;
+                    document.getElementById('score').textContent = 'Score: ' + score;
+                    if (score >= 10) {
+                        // Après 10 points, changer la couleur de la voiture et des obstacles
+                        carColor = 'green'; 
+                        obstacleColor = 'purple';
+                    }
                 }
-            });
+            }
         }
 
-        // Effacer l'écran et redessiner le jeu
-        function draw() {
-            if (gameOver) return;
+        // Fonction pour gérer les collisions
+        function checkCollision() {
+            for (let i = 0; i < obstacles.length; i++) {
+                if (car.x < obstacles[i].x + obstacles[i].width &&
+                    car.x + car.width > obstacles[i].x &&
+                    car.y < obstacles[i].y + obstacles[i].height &&
+                    car.y + car.height > obstacles[i].y) {
+                    alert('Game Over!'); // Si collision, fin du jeu
+                    window.location.href = 'index.html'; // Redirige vers la page d'accueil
+                }
+            }
+        }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Fonction pour dessiner le score et mettre à jour le jeu
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Effacer l'écran
             drawCar();
             drawObstacles();
-            moveCar();
             moveObstacles();
-            checkCollisions();
+            checkCollision();
         }
 
-        // Initialiser le jeu
-        function startGame() {
-            setInterval(draw, 1000 / 60); // Mettre à jour le jeu à 60 fps
-            setInterval(createObstacle, 2000); // Créer un nouvel obstacle toutes les 2 secondes
+        // Fonction pour contrôler la voiture avec les touches fléchées
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft' && car.x > 0) {
+                car.x -= car.speed;
+            }
+            if (event.key === 'ArrowRight' && car.x + car.width < canvas.width) {
+                car.x += car.speed;
+            }
+        });
+
+        // Créer des obstacles
+        function createObstacles() {
+            for (let i = 0; i < 5; i++) { // 5 obstacles initiaux
+                let width = Math.random() * (100 - 30) + 30;
+                let height = Math.random() * (50 - 30) + 30;
+                let x = Math.random() * (canvas.width - width);
+                let y = Math.random() * -canvas.height;
+                obstacles.push({ x, y, width, height });
+            }
         }
 
-        startGame(); // Démarrer le jeu
+        // Initialisation du jeu
+        function init() {
+            createObstacles();
+            setInterval(updateGame, 20); // Met à jour le jeu toutes les 20ms
+        }
+
+        init();
     </script>
 
 </body>
