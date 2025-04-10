@@ -43,6 +43,17 @@
             font-size: 18px;
             margin: 5px 0;
         }
+
+        #playerNameDiv {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        #playerName {
+            padding: 5px;
+            font-size: 16px;
+            width: 150px;
+        }
     </style>
 </head>
 <body>
@@ -50,6 +61,13 @@
     <h1>Mini-Jeu Pac-Man</h1>
     <p>Attrapez toutes les pastilles !</p>
     <p id="score">Score: 0</p>
+
+    <!-- Champ de texte pour entrer le pseudo -->
+    <div id="playerNameDiv">
+        <label for="playerName">Entrez votre pseudo : </label>
+        <input type="text" id="playerName" placeholder="Votre pseudo" required>
+        <button onclick="startGame()" style="margin-left: 10px; padding: 5px 10px;">Commencer le jeu</button>
+    </div>
 
     <!-- Bouton Quitter le jeu -->
     <button onclick="window.location.href='index.html'" style="
@@ -83,6 +101,7 @@
         ];
         let pills = [];
         let score = 0;
+        let playerName = ''; // Le pseudo du joueur
 
         // Fonction pour dessiner Pac-Man
         function drawPacMan() {
@@ -133,7 +152,7 @@
             // Déplacer les fantômes (suivre Pac-Man)
             ghosts.forEach(ghost => {
                 let angle = Math.atan2(pacman.y - ghost.y, pacman.x - ghost.x);
-                ghost.dx = Math.cos(angle) * ghost.speed;  // Vitesse constante
+                ghost.dx = Math.cos(angle) * ghost.speed;
                 ghost.dy = Math.sin(angle) * ghost.speed;
 
                 ghosts.forEach((otherGhost, otherIndex) => {
@@ -184,7 +203,7 @@
             ghosts.forEach(ghost => {
                 if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < ghost.radius + pacman.radius) {
                     // Game Over: Réinitialisation du jeu
-                    saveScore(score); // Sauvegarde du score lorsqu'on perd
+                    saveScore(score); // Sauvegarde du score avec pseudo
                     alert("Game Over! Votre score : " + score);
                     location.reload(); // Recharge la page pour recommencer
                 }
@@ -217,19 +236,25 @@
             }
         }
 
-        function getRandomColor() {
-            const colors = ['red', 'blue', 'green', 'pink', 'yellow'];
-            return colors[Math.floor(Math.random() * colors.length)];
+        // Fonction pour démarrer le jeu
+        function startGame() {
+            playerName = document.getElementById('playerName').value.trim();
+            if (!playerName) {
+                alert("Veuillez entrer un pseudo.");
+                return;
+            }
+
+            document.getElementById('playerNameDiv').style.display = 'none'; // Cache le champ du pseudo
+            generatePills();
+            setInterval(updateGame, 1000 / 60); // Mise à jour du jeu 60 fois par seconde
         }
 
-        // Fonction pour sauvegarder le score dans localStorage
-        function saveScore(newScore) {
-            let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-            leaderboard.push(newScore);
-            leaderboard.sort((a, b) => b - a); // Tri des scores du plus élevé au plus bas
-            leaderboard = leaderboard.slice(0, 5); // Garder uniquement les 5 meilleurs scores
+        // Fonction pour sauvegarder le score dans le leaderboard
+        function saveScore(score) {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+            leaderboard.push({ name: playerName, score: score });
+            leaderboard.sort((a, b) => b.score - a.score); // Tri décroissant par score
             localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-            updateLeaderboard();
         }
 
         // Fonction pour afficher le leaderboard
@@ -237,25 +262,17 @@
             const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
             const leaderboardList = document.getElementById('leaderboardList');
             leaderboardList.innerHTML = ''; // Vider la liste avant de l'actualiser
-            leaderboard.forEach(score => {
+            leaderboard.forEach(entry => {
                 const li = document.createElement('li');
-                li.textContent = score;
+                li.textContent = `${entry.name}: ${entry.score}`;
                 leaderboardList.appendChild(li);
             });
         }
 
-        // Initialisation du jeu
-        generatePills();
-        setInterval(updateGame, 1000 / 60); // Mise à jour du jeu 60 fois par seconde
-
         // Mettre à jour le leaderboard au chargement de la page
         window.onload = updateLeaderboard;
+
     </script>
 
 </body>
 </html>
-
-
-
-
-
