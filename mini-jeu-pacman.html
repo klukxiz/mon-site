@@ -34,12 +34,12 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        const pacman = { x: 100, y: 100, radius: 15, dx: 0, dy: 0, speed: 5 };
-        const ghosts = [
+        let pacman = { x: 100, y: 100, radius: 15, dx: 0, dy: 0, speed: 5 };
+        let ghosts = [
             { x: 500, y: 100, radius: 20, dx: 1, dy: 0, color: 'red' },
             { x: 600, y: 300, radius: 20, dx: -1, dy: 0, color: 'blue' }
         ];
-        const pills = [];
+        let pills = [];
         let score = 0;
 
         // Fonction pour dessiner Pac-Man
@@ -107,6 +107,15 @@
                 }
             });
 
+            // Détecter la collision avec un fantôme
+            ghosts.forEach(ghost => {
+                if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < ghost.radius + pacman.radius) {
+                    // Game Over: Réinitialisation du jeu
+                    alert("Game Over! Votre score : " + score);
+                    location.reload(); // Recharge la page pour recommencer
+                }
+            });
+
             // Dessiner Pac-Man, les fantômes et les pastilles
             drawPacMan();
             drawGhosts();
@@ -141,3 +150,4 @@
 
 </body>
 </html>
+
