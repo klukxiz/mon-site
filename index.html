@@ -46,7 +46,7 @@
 
     // Create obstacles
     function createObstacle() {
-        let size = Math.random() * 50 + 30; // Random size between 30 and 80 pixels
+        let size = Math.random() * 30 + 20; // Random size between 20 and 50 pixels (shorter obstacles)
         let xPos = Math.random() * (canvas.width - size); // Random position on X-axis
         let yPos = -size; // Start obstacles off-screen
         obstacles.push({ x: xPos, y: yPos, size: size });
