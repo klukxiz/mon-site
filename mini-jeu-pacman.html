@@ -82,21 +82,26 @@
             pacman.x += pacman.dx;
             pacman.y += pacman.dy;
 
-            // Collision avec les bords
-            if (pacman.x < pacman.radius) pacman.x = pacman.radius;
-            if (pacman.x > canvas.width - pacman.radius) pacman.x = canvas.width - pacman.radius;
-            if (pacman.y < pacman.radius) pacman.y = pacman.radius;
-            if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
+ghosts.forEach((ghost, index) => {
+    if (index === 0) {
+        // 👻 Fantôme qui poursuit Pac-Man
+        const dx = pacman.x - ghost.x;
+        const dy = pacman.y - ghost.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance > 1) {
+            ghost.x += (dx / distance) * 1; // Vitesse lente (1)
+            ghost.y += (dy / distance) * 1;
+        }
+    } else {
+        // 🌀 Fantôme classique
+        ghost.x += ghost.dx;
+        ghost.y += ghost.dy;
 
-            // Déplacer les fantômes
-            ghosts.forEach(ghost => {
-                ghost.x += ghost.dx;
-                ghost.y += ghost.dy;
+        if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
+        if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
+    }
+});
 
-                // Collision avec les bords pour les fantômes
-                if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
-                if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
-            });
 
             // Détecter la collision avec les pastilles
             pills.forEach((pill, index) => {
