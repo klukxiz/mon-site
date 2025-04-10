@@ -3,174 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini-Jeu Voiture</title>
+    <title>Mini-jeu Voiture</title>
     <style>
         body {
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            overflow: hidden;
+            background-color: #000;
         }
+
         canvas {
-            border: 2px solid black;
-        }
-        .btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            padding: 10px 20px;
-            background-color: green;
-            color: white;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            background-color: #2e2e2e;
         }
     </style>
 </head>
 <body>
-    <button class="btn" onclick="startGame()">Start Game</button>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-
-    <audio id="backgroundMusic" loop>
-        <source src="assetsmusic/music/musique.mp3" type="audio/mp3">
-    </audio>
+    <canvas id="gameCanvas"></canvas>
 
     <script>
-        let canvas = document.getElementById('gameCanvas');
-        let ctx = canvas.getContext('2d');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        let carWidth = 40;
-        let carHeight = 70;
-        let carX = (canvas.width - carWidth) / 2;
-        let carY = canvas.height - carHeight - 10;
-        let carSpeed = 5;
-        let obstacles = [];
-        let gameInterval;
-        let isGameRunning = false;
+        // Taille du canvas
+        canvas.width = 800;
+        canvas.height = 600;
 
-        // Musique
-        let backgroundMusic = document.getElementById('backgroundMusic');
-
-        // Image de la voiture
-        let carImage = new Image();
-        carImage.src = 'assets/car.png'; // Remplace par le chemin de ton image
-
-        carImage.onload = function() {
-            console.log("Image de la voiture chargée avec succès !");
+        let car = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 60,
+            width: 50,
+            height: 100,
+            speed: 5,
+            dx: 0
         };
 
-        // Commandes
-        let leftPressed = false;
-        let rightPressed = false;
+        let obstacles = [];
+        let gameSpeed = 2;
 
-        // Fonction pour démarrer le jeu
-        function startGame() {
-            isGameRunning = true;
-            document.querySelector('.btn').style.display = 'none';
-            backgroundMusic.play();
-            gameInterval = setInterval(updateGameArea, 20);
-            document.addEventListener('keydown', keyDownHandler, false);
-            document.addEventListener('keyup', keyUpHandler, false);
-        }
-
-        // Fonctions pour contrôler la voiture
-        function keyDownHandler(e) {
-            if (e.key == 'Left' || e.key == 'ArrowLeft') {
-                leftPressed = true;
-            } else if (e.key == 'Right' || e.key == 'ArrowRight') {
-                rightPressed = true;
-            }
-        }
-
-        function keyUpHandler(e) {
-            if (e.key == 'Left' || e.key == 'ArrowLeft') {
-                leftPressed = false;
-            } else if (e.key == 'Right' || e.key == 'ArrowRight') {
-                rightPressed = false;
-            }
-        }
-
-        // Générer des obstacles
-        function generateObstacles() {
-            let obstacleWidth = Math.random() * 60 + 20; // Largeur des obstacles limitée entre 20 et 80 pixels
-            let obstacleHeight = 20;
-            let obstacleX = Math.random() * (canvas.width - obstacleWidth); // Position horizontale aléatoire
-            let obstacleSpeed = Math.random() * 2 + 2;
-            obstacles.push({x: obstacleX, y: -obstacleHeight, width: obstacleWidth, height: obstacleHeight, speed: obstacleSpeed});
-        }
-
-        // Dessiner la voiture
+        // Fonction pour dessiner la voiture
         function drawCar() {
-            ctx.drawImage(carImage, carX, carY, carWidth, carHeight);
+            ctx.fillStyle = '#ff0000'; // Rouge
+            ctx.fillRect(car.x, car.y, car.width, car.height);
         }
 
-        // Dessiner les obstacles
+        // Fonction pour dessiner les obstacles
         function drawObstacles() {
-            ctx.fillStyle = "#FF0000"; // Change la couleur des obstacles
-            for (let i = 0; i < obstacles.length; i++) {
-                ctx.beginPath();
-                ctx.rect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
-                ctx.fill();
-                ctx.closePath();
-            }
+            ctx.fillStyle = '#00ff00'; // Vert
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
         }
 
-        // Vérifier les collisions
+        // Générer un nouvel obstacle
+        function generateObstacle() {
+            const width = Math.random() * (canvas.width / 2) + 50;  // Largeur aléatoire
+            const x = Math.random() * (canvas.width - width);
+            const y = -50; // Position de départ (au-dessus du canvas)
+            obstacles.push({ x, y, width, height: 50 });
+        }
+
+        // Mise à jour des positions des obstacles
+        function updateObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.y += gameSpeed; // Descente des obstacles
+            });
+
+            // Supprimer les obstacles qui sont hors du canvas
+            obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
+        }
+
+        // Détection des collisions
         function checkCollisions() {
-            for (let i = 0; i < obstacles.length; i++) {
-                if (
-                    carX < obstacles[i].x + obstacles[i].width &&
-                    carX + carWidth > obstacles[i].x &&
-                    carY < obstacles[i].y + obstacles[i].height &&
-                    carY + carHeight > obstacles[i].y
-                ) {
-                    endGame();
+            obstacles.forEach(obstacle => {
+                if (car.x < obstacle.x + obstacle.width &&
+                    car.x + car.width > obstacle.x &&
+                    car.y < obstacle.y + obstacle.height &&
+                    car.y + car.height > obstacle.y) {
+                    // Collision détectée, fin du jeu
+                    alert('Game Over!');
+                    window.location.href = '/';  // Rediriger vers la page d’accueil
                 }
-            }
+            });
         }
 
-        // Mettre à jour l'état du jeu
-        function updateGameArea() {
-            if (isGameRunning) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawCar();
-                drawObstacles();
-                moveObstacles();
-                checkCollisions();
+        // Fonction de mise à jour du jeu
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Effacer le canvas
+            drawCar();
+            drawObstacles();
+            updateObstacles();
+            checkCollisions();
 
-                // Déplacer la voiture
-                if (leftPressed && carX > 0) {
-                    carX -= carSpeed;
-                } else if (rightPressed && carX + carWidth < canvas.width) {
-                    carX += carSpeed;
-                }
-            }
-        }
-
-        // Déplacer les obstacles
-        function moveObstacles() {
-            for (let i = 0; i < obstacles.length; i++) {
-                obstacles[i].y += obstacles[i].speed;
-                if (obstacles[i].y > canvas.height) {
-                    obstacles.splice(i, 1); // Enlever l'obstacle s'il est sorti du canvas
-                    i--;
-                }
+            // Générer un nouvel obstacle
+            if (Math.random() < 0.01) {
+                generateObstacle();
             }
 
-            // Ajouter un nouvel obstacle toutes les 1000 ms
-            if (Math.random() < 0.02) {
-                generateObstacles();
-            }
+            requestAnimationFrame(updateGame); // Redemander la mise à jour
         }
 
-        // Terminer le jeu
-        function endGame() {
-            clearInterval(gameInterval);
-            backgroundMusic.pause();
-            alert("Game Over!");
+        // Déplacement de la voiture
+        function moveCar() {
+            car.x += car.dx;
+            if (car.x < 0) car.x = 0;
+            if (car.x + car.width > canvas.width) car.x = canvas.width - car.width;
         }
+
+        // Écouter les touches du clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') car.dx = -car.speed;
+            if (e.key === 'ArrowRight') car.dx = car.speed;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') car.dx = 0;
+        });
+
+        // Initialiser le jeu
+        updateGame();
+        moveCar();
     </script>
 </body>
 </html>
