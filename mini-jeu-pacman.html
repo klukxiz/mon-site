@@ -19,9 +19,6 @@
         #score {
             font-size: 24px;
             color: white;
-            position: absolute;
-            top: 20px;
-            left: 20px;
         }
     </style>
 </head>
@@ -29,113 +26,117 @@
 
     <h1>Mini-Jeu Pac-Man</h1>
     <p>Attrapez toutes les pastilles !</p>
+    <p id="score">Score: 0</p>
 
-    <div id="score">Score: 0</div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+
+        const pacman = { x: 100, y: 100, radius: 15, dx: 0, dy: 0, speed: 5 };
+        const ghosts = [
+            { x: 500, y: 100, radius: 20, dx: 1, dy: 0, color: 'red' },
+            { x: 600, y: 300, radius: 20, dx: -1, dy: 0, color: 'blue' }
+        ];
+        const pills = [];
         let score = 0;
 
-        // Dimensions de Pac-Man
-        const pacMan = {
-            x: 50,
-            y: 50,
-            radius: 20,
-            color: 'yellow',
-            speed: 5
-        };
-
-        // Tableau des pastilles
-        const pills = [];
-        const pillRadius = 10;
-
-        // Gérer les mouvements de Pac-Man
-        let keys = {};
-
-        document.addEventListener('keydown', (e) => {
-            keys[e.key] = true;
-        });
-
-        document.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
-
-        // Créer des pastilles aléatoires
-        function createPills() {
-            for (let i = 0; i < 10; i++) {
-                const pill = {
-                    x: Math.random() * (canvas.width - pillRadius * 2) + pillRadius,
-                    y: Math.random() * (canvas.height - pillRadius * 2) + pillRadius
-                };
-                pills.push(pill);
-            }
-        }
-
-        // Dessiner Pac-Man
+        // Fonction pour dessiner Pac-Man
         function drawPacMan() {
             ctx.beginPath();
-            ctx.arc(pacMan.x, pacMan.y, pacMan.radius, 0, Math.PI * 2);
-            ctx.fillStyle = pacMan.color;
+            ctx.arc(pacman.x, pacman.y, pacman.radius, 0.2 * Math.PI, 1.8 * Math.PI); // dessin de la bouche ouverte
+            ctx.lineTo(pacman.x, pacman.y);
+            ctx.fillStyle = 'yellow';
             ctx.fill();
             ctx.closePath();
         }
 
-        // Dessiner les pastilles
-        function drawPills() {
-            ctx.fillStyle = 'white';
-            pills.forEach((pill) => {
+        // Fonction pour dessiner les fantômes
+        function drawGhosts() {
+            ghosts.forEach(ghost => {
                 ctx.beginPath();
-                ctx.arc(pill.x, pill.y, pillRadius, 0, Math.PI * 2);
+                ctx.arc(ghost.x, ghost.y, ghost.radius, 0, 2 * Math.PI); // Fantômes ronds
+                ctx.fillStyle = ghost.color;
                 ctx.fill();
                 ctx.closePath();
             });
         }
 
-        // Gérer les collisions avec les pastilles
-        function checkCollisions() {
-            for (let i = 0; i < pills.length; i++) {
-                const pill = pills[i];
-                const dist = Math.sqrt(Math.pow(pacMan.x - pill.x, 2) + Math.pow(pacMan.y - pill.y, 2));
+        // Fonction pour dessiner les pastilles
+        function drawPills() {
+            pills.forEach(pill => {
+                ctx.beginPath();
+                ctx.arc(pill.x, pill.y, 5, 0, 2 * Math.PI); // Pastilles
+                ctx.fillStyle = 'white';
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
 
-                if (dist < pacMan.radius + pillRadius) {
-                    pills.splice(i, 1); // Supprimer la pastille
-                    score++; // Incrémenter le score
-                    updateScore(); // Mettre à jour l'affichage du score
+        // Fonction pour mettre à jour le jeu
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Efface l'écran à chaque itération
+
+            // Déplacer Pac-Man
+            pacman.x += pacman.dx;
+            pacman.y += pacman.dy;
+
+            // Collision avec les bords
+            if (pacman.x < pacman.radius) pacman.x = pacman.radius;
+            if (pacman.x > canvas.width - pacman.radius) pacman.x = canvas.width - pacman.radius;
+            if (pacman.y < pacman.radius) pacman.y = pacman.radius;
+            if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
+
+            // Déplacer les fantômes
+            ghosts.forEach(ghost => {
+                ghost.x += ghost.dx;
+                ghost.y += ghost.dy;
+
+                // Collision avec les bords pour les fantômes
+                if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
+                if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
+            });
+
+            // Détecter la collision avec les pastilles
+            pills.forEach((pill, index) => {
+                if (Math.hypot(pill.x - pacman.x, pill.y - pacman.y) < pacman.radius + 5) {
+                    pills.splice(index, 1); // Retire la pastille
+                    score += 10; // Ajoute des points
+                    document.getElementById('score').textContent = 'Score: ' + score;
                 }
+            });
+
+            // Dessiner Pac-Man, les fantômes et les pastilles
+            drawPacMan();
+            drawGhosts();
+            drawPills();
+        }
+
+        // Fonction pour contrôler Pac-Man avec les touches fléchées
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowUp') pacman.dy = -pacman.speed;
+            if (event.key === 'ArrowDown') pacman.dy = pacman.speed;
+            if (event.key === 'ArrowLeft') pacman.dx = -pacman.speed;
+            if (event.key === 'ArrowRight') pacman.dx = pacman.speed;
+        });
+
+        // Fonction pour générer des pastilles
+        function generatePills() {
+            for (let i = 0; i < 10; i++) { // Crée 10 pastilles
+                let x = Math.random() * (canvas.width - 10) + 5;
+                let y = Math.random() * (canvas.height - 10) + 5;
+                pills.push({ x, y });
             }
         }
 
-        // Mettre à jour l'affichage du score
-        function updateScore() {
-            document.getElementById('score').textContent = `Score: ${score}`;
+        // Fonction d'initialisation du jeu
+        function init() {
+            generatePills();
+            setInterval(updateGame, 20); // Met à jour le jeu toutes les 20ms
         }
 
-        // Mettre à jour la position de Pac-Man
-        function movePacMan() {
-            if (keys['ArrowUp']) pacMan.y -= pacMan.speed;
-            if (keys['ArrowDown']) pacMan.y += pacMan.speed;
-            if (keys['ArrowLeft']) pacMan.x -= pacMan.speed;
-            if (keys['ArrowRight']) pacMan.x += pacMan.speed;
-        }
-
-        // Effacer l'écran et redessiner le jeu
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawPacMan();
-            drawPills();
-            checkCollisions();
-            movePacMan();
-        }
-
-        // Initialisation du jeu
-        function startGame() {
-            createPills(); // Créer des pastilles au début du jeu
-            setInterval(draw, 1000 / 60); // Mettre à jour le jeu à 60 fps
-        }
-
-        startGame(); // Démarrer le jeu
+        init();
     </script>
 
 </body>
