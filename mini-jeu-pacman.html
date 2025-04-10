@@ -125,12 +125,17 @@ ghosts.forEach((ghost, index) => {
                 }
             });
 
-            // Détecter la collision avec un fantôme
-            ghosts.forEach(ghost => {
-                if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < ghost.radius + pacman.radius) {
-                    // Game Over: Réinitialisation du jeu
-                    alert("Game Over! Votre score : " + score);
-                    location.reload(); // Recharge la page pour recommencer
+            let collisionDistance = ghost.radius + pacman.radius + 5; // Ajouter une marge de sécurité
+
+// Détecter la collision avec un fantôme avec la nouvelle distance
+ghosts.forEach(ghost => {
+    if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < collisionDistance) {
+        // Game Over: Réinitialisation du jeu
+        alert("Game Over! Votre score : " + score);
+        location.reload(); // Recharge la page pour recommencer
+    }
+});
+
                 }
             });
 
