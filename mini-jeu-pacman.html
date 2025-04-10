@@ -23,11 +23,15 @@
 
         #leaderboard {
             margin-top: 20px;
-            color: white;
+            color: #fff; /* Texte blanc */
+            background-color: #333; /* Fond sombre */
+            padding: 10px;
+            border-radius: 5px;
         }
 
         #leaderboard h2 {
             font-size: 20px;
+            margin-bottom: 10px;
         }
 
         #leaderboard ul {
@@ -37,6 +41,7 @@
 
         #leaderboard li {
             font-size: 18px;
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -231,27 +236,25 @@
         function updateLeaderboard() {
             const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
             const leaderboardList = document.getElementById('leaderboardList');
-            leaderboardList.innerHTML = ''; // Réinitialise la liste
-
+            leaderboardList.innerHTML = ''; // Vider la liste avant de l'actualiser
             leaderboard.forEach(score => {
                 const li = document.createElement('li');
-                li.textContent = `Score: ${score}`;
+                li.textContent = score;
                 leaderboardList.appendChild(li);
             });
         }
 
-        // Fonction d'initialisation du jeu
-        function init() {
-            generatePills();
-            updateLeaderboard(); // Affiche le leaderboard au démarrage
-            setInterval(updateGame, 20); // Met à jour le jeu toutes les 20ms
-        }
+        // Initialisation du jeu
+        generatePills();
+        setInterval(updateGame, 1000 / 60); // Mise à jour du jeu 60 fois par seconde
 
-        init();
+        // Mettre à jour le leaderboard au chargement de la page
+        window.onload = updateLeaderboard;
     </script>
 
 </body>
 </html>
+
 
 
 
