@@ -3,176 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini-Jeu Voiture</title>
+    <title>Mon Super Site</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column; /* Pour aligner le jeu et autres sections */
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            margin: 0;
         }
 
-        canvas {
-            border: 2px solid black;
-            background-color: #e0e0e0;
-            width: 800px; /* Fixe la largeur du canvas */
-            height: 600px; /* Fixe la hauteur du canvas */
-            margin-bottom: 20px;
+        .hero-section {
+            background-image: url('https://via.placeholder.com/1200x600?text=Bienvenue+sur+mon+site');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 50px 0;
         }
 
-        /* Conteneur de jeu avec une taille définie */
+        .btn-custom {
+            background-color: #FF5733;
+            color: white;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+
         .game-container {
             width: 800px;
             height: 600px;
+            margin: 0 auto;
             overflow: hidden;
             position: relative;
+            border: 2px solid black;
+            background-color: #e0e0e0;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
 
         .site-content {
-            margin-top: 20px; /* Marge pour séparer le contenu du site du jeu */
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
-<!-- Conteneur du mini-jeu -->
-<div class="game-container">
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-</div>
+    <!-- Section de jeu -->
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
 
-<!-- Contenu du site -->
-<div class="site-content">
-    <h1>Bienvenue sur le site de Klukxiz</h1>
-    <p>Explorez plus de contenus et amusez-vous avec nos mini-jeux !</p>
-    <a href="index.html">Retour à l'accueil</a>
-</div>
+    <!-- Contenu du site -->
+    <div class="site-content">
+        <h1>Bienvenue sur le site de Klukxiz</h1>
+        <p>Explorez plus de contenus et amusez-vous avec nos mini-jeux !</p>
+        <a href="index.html" class="btn btn-custom btn-lg">Retour à l'accueil</a>
+    </div>
 
-<script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 Mon Super Site. Tous droits réservés.</p>
+    </div>
 
-    // Car object
-    const car = {
-        x: canvas.width / 2 - 25,
-        y: canvas.height - 70,
-        width: 50,
-        height: 70,
-        speed: 5,
-        dx: 0
-    };
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-    // Array to store obstacles
-    let obstacles = [];
+        // Car object
+        const car = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 70,
+            width: 50,
+            height: 70,
+            speed: 5,
+            dx: 0
+        };
 
-    // Setting the speed of the game
-    let obstacleSpeed = 2; // Speed of obstacles (lower for easier game)
+        // Array to store obstacles
+        let obstacles = [];
 
-    // Create obstacles
-    function createObstacle() {
-        let size = Math.random() * 30 + 20; // Random size between 20 and 50 pixels (shorter obstacles)
-        let xPos = Math.random() * (canvas.width - size); // Random position on X-axis
-        let yPos = -size; // Start obstacles off-screen
-        obstacles.push({ x: xPos, y: yPos, size: size });
-    }
+        // Setting the speed of the game
+        let obstacleSpeed = 2; // Speed of obstacles (lower for easier game)
 
-    // Move obstacles
-    function moveObstacles() {
-        for (let i = 0; i < obstacles.length; i++) {
-            obstacles[i].y += obstacleSpeed; // Move obstacles down the screen
-            if (obstacles[i].y > canvas.height) {
-                obstacles.splice(i, 1); // Remove obstacles once they pass the screen
-                i--;
+        // Create obstacles
+        function createObstacle() {
+            let size = Math.random() * 30 + 20; // Random size between 20 and 50 pixels (shorter obstacles)
+            let xPos = Math.random() * (canvas.width - size); // Random position on X-axis
+            let yPos = -size; // Start obstacles off-screen
+            obstacles.push({ x: xPos, y: yPos, size: size });
+        }
+
+        // Move obstacles
+        function moveObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += obstacleSpeed; // Move obstacles down the screen
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1); // Remove obstacles once they pass the screen
+                    i--;
+                }
             }
         }
-    }
 
-    // Draw obstacles on the canvas
-    function drawObstacles() {
-        ctx.fillStyle = 'red'; // Color of the obstacles
-        for (let i = 0; i < obstacles.length; i++) {
-            ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].size, obstacles[i].size);
-        }
-    }
-
-    // Draw the car
-    function drawCar() {
-        ctx.fillStyle = 'blue'; // Color of the car
-        ctx.fillRect(car.x, car.y, car.width, car.height);
-    }
-
-    // Clear the canvas
-    function clear() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // Update the game every frame
-    function updateGame() {
-        clear();
-        drawCar();
-        moveObstacles();
-        drawObstacles();
-        checkCollision();
-        requestAnimationFrame(updateGame); // Keep looping
-    }
-
-    // Check for collision between car and obstacles
-    function checkCollision() {
-        for (let i = 0; i < obstacles.length; i++) {
-            if (car.x < obstacles[i].x + obstacles[i].size &&
-                car.x + car.width > obstacles[i].x &&
-                car.y < obstacles[i].y + obstacles[i].size &&
-                car.y + car.height > obstacles[i].y) {
-                // If there is a collision, reset the game or end it
-                resetGame();
+        // Draw obstacles on the canvas
+        function drawObstacles() {
+            ctx.fillStyle = 'red'; // Color of the obstacles
+            for (let i = 0; i < obstacles.length; i++) {
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].size, obstacles[i].size);
             }
         }
-    }
 
-    // Reset the game after a collision
-    function resetGame() {
-        obstacles = []; // Reset obstacles
-        car.x = canvas.width / 2 - car.width / 2; // Reset car position
-        car.y = canvas.height - 70; // Reset car position
-        alert("Game Over! Try again.");
-    }
-
-    // Move car left or right
-    function moveCar() {
-        car.x += car.dx;
-        if (car.x < 0) car.x = 0; // Prevent car from moving off-screen
-        if (car.x + car.width > canvas.width) car.x = canvas.width - car.width; // Prevent car from moving off-screen
-    }
-
-    // Handle keyboard input
-    function keyDown(e) {
-        if (e.key === "ArrowRight") {
-            car.dx = car.speed;
-        } else if (e.key === "ArrowLeft") {
-            car.dx = -car.speed;
+        // Draw the car
+        function drawCar() {
+            ctx.fillStyle = 'blue'; // Color of the car
+            ctx.fillRect(car.x, car.y, car.width, car.height);
         }
-    }
 
-    function keyUp(e) {
-        if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-            car.dx = 0; // Stop moving when key is released
+        // Clear the canvas
+        function clear() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-    }
 
-    // Adjust game difficulty (Create obstacles every 2 seconds)
-    let obstacleInterval = setInterval(createObstacle, 2000); // Create an obstacle every 2 seconds
+        // Update the game every frame
+        function updateGame() {
+            clear();
+            drawCar();
+            moveObstacles();
+            drawObstacles();
+            checkCollision();
+            requestAnimationFrame(updateGame); // Keep looping
+        }
 
-    // Event listeners for keyboard controls
-    document.addEventListener("keydown", keyDown);
-    document.addEventListener("keyup", keyUp);
+        // Check for collision between car and obstacles
+        function checkCollision() {
+            for (let i = 0; i < obstacles.length; i++) {
+                if (car.x < obstacles[i].x + obstacles[i].size &&
+                    car.x + car.width > obstacles[i].x &&
+                    car.y < obstacles[i].y + obstacles[i].size &&
+                    car.y + car.height > obstacles[i].y) {
+                    // If there is a collision, reset the game or end it
+                    resetGame();
+                }
+            }
+        }
 
-    // Start the game loop
-    updateGame();
-</script>
+        // Reset the game after a collision
+        function resetGame() {
+            obstacles = []; // Reset obstacles
+            car.x = canvas.width / 2 - car.width / 2; // Reset car position
+            car.y = canvas.height - 70; // Reset car position
+            alert("Game Over! Try again.");
+        }
+
+        // Move car left or right
+        function moveCar() {
+            car.x += car.dx;
+            if (car.x < 0) car.x = 0; // Prevent car from moving off-screen
+            if (car.x + car.width > canvas.width) car.x = canvas.width - car.width; // Prevent car from moving off-screen
+        }
+
+        // Handle keyboard input
+        function keyDown(e) {
+            if (e.key === "ArrowRight") {
+                car.dx = car.speed;
+            } else if (e.key === "ArrowLeft") {
+                car.dx = -car.speed;
+            }
+        }
+
+        function keyUp(e) {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                car.dx = 0; // Stop moving when key is released
+            }
+        }
+
+        // Adjust game difficulty (Create obstacles every 2 seconds)
+        let obstacleInterval = setInterval(createObstacle, 2000); // Create an obstacle every 2 seconds
+
+        // Event listeners for keyboard controls
+        document.addEventListener("keydown", keyDown);
+        document.addEventListener("keyup", keyUp);
+
+        // Start the game loop
+        updateGame();
+    </script>
 
 </body>
 </html>
