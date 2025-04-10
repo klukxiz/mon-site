@@ -94,9 +94,9 @@
 
         // Générer des obstacles
         function generateObstacles() {
-            let obstacleWidth = Math.random() * 50 + 30;
+            let obstacleWidth = Math.random() * 60 + 20; // Largeur des obstacles limitée entre 20 et 80 pixels
             let obstacleHeight = 20;
-            let obstacleX = Math.random() * (canvas.width - obstacleWidth);
+            let obstacleX = Math.random() * (canvas.width - obstacleWidth); // Position horizontale aléatoire
             let obstacleSpeed = Math.random() * 2 + 2;
             obstacles.push({x: obstacleX, y: -obstacleHeight, width: obstacleWidth, height: obstacleHeight, speed: obstacleSpeed});
         }
@@ -108,7 +108,7 @@
 
         // Dessiner les obstacles
         function drawObstacles() {
-            ctx.fillStyle = "#00FF00";
+            ctx.fillStyle = "#FF0000"; // Change la couleur des obstacles
             for (let i = 0; i < obstacles.length; i++) {
                 ctx.beginPath();
                 ctx.rect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
@@ -154,7 +154,7 @@
             for (let i = 0; i < obstacles.length; i++) {
                 obstacles[i].y += obstacles[i].speed;
                 if (obstacles[i].y > canvas.height) {
-                    obstacles.splice(i, 1);
+                    obstacles.splice(i, 1); // Enlever l'obstacle s'il est sorti du canvas
                     i--;
                 }
             }
