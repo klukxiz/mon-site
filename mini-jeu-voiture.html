@@ -3,111 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Jeu - Voiture</title>
+    <title>Mini-Jeu Voiture</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
+            text-align: center;
         }
+
         canvas {
-            background-color: #333;
-            display: block;
-            margin: 0 auto;
+            background-color: #e0e0e0;
+            border: 1px solid black;
         }
     </style>
 </head>
 <body>
 
-<canvas id="gameCanvas" width="800" height="600"></canvas>
+    <h1>Mini-Jeu Voiture</h1>
+    <p>Évitez les obstacles !</p>
 
-<script>
-    // Paramètres du jeu
-    let canvas = document.getElementById('gameCanvas');
-    let ctx = canvas.getContext('2d');
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-    let car = { x: canvas.width / 2 - 25, y: canvas.height - 60, width: 50, height: 60, speed: 5 };
-    let obstacles = [];
-    let gameSpeed = 2;
-    let score = 0;
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-    // Fonction pour dessiner la voiture
-    function drawCar() {
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(car.x, car.y, car.width, car.height);
-    }
+        // Exemple simple de jeu de voiture
+        let car = { x: 100, y: 100, width: 50, height: 80 };
+        let obstacles = [];
+        let score = 0;
 
-    // Fonction pour dessiner un obstacle
-    function drawObstacle(obstacle) {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-    }
-
-    // Créer un nouvel obstacle
-    function createObstacle() {
-        let width = Math.random() * (canvas.width - 50) + 50;
-        let height = 30;
-        let x = Math.random() * (canvas.width - width);
-        obstacles.push({ x: x, y: -height, width: width, height: height });
-    }
-
-    // Mettre à jour le jeu
-    function updateGame() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        drawCar();
-
-        // Mettre à jour les obstacles
-        obstacles.forEach(function(obstacle, index) {
-            obstacle.y += gameSpeed;
-            drawObstacle(obstacle);
-            if (obstacle.y > canvas.height) {
-                obstacles.splice(index, 1); // Supprimer l'obstacle une fois qu'il sort de l'écran
-                score++;
-            }
-        });
-
-        // Créer de nouveaux obstacles
-        if (Math.random() < 0.01) {
-            createObstacle();
+        function drawCar() {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(car.x, car.y, car.width, car.height);
         }
 
-        // Vérifier les collisions
-        obstacles.forEach(function(obstacle) {
-            if (car.x < obstacle.x + obstacle.width &&
-                car.x + car.width > obstacle.x &&
-                car.y < obstacle.y + obstacle.height &&
-                car.y + car.height > obstacle.y) {
-                    alert('Game Over! Your score is ' + score);
-                    resetGame();
+        function generateObstacle() {
+            const x = canvas.width;
+            const y = Math.random() * canvas.height;
+            obstacles.push({ x, y, width: 50, height: 50 });
+        }
+
+        function moveObstacles() {
+            obstacles.forEach(obs => obs.x -= 5);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = 'red';
+            obstacles.forEach(obs => ctx.fillRect(obs.x, obs.y, obs.width, obs.height));
+        }
+
+        function detectCollision() {
+            obstacles.forEach(obs => {
+                if (car.x < obs.x + obs.width &&
+                    car.x + car.width > obs.x &&
+                    car.y < obs.y + obs.height &&
+                    car.y + car.height > obs.y) {
+                    alert('Game Over');
+                    obstacles = [];
+                    score = 0;
                 }
+            });
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCar();
+            drawObstacles();
+            moveObstacles();
+            detectCollision();
+            score++;
+            if (Math.random() < 0.02) generateObstacle();
+            requestAnimationFrame(updateGame);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp') car.y -= 10;
+            if (e.key === 'ArrowDown') car.y += 10;
+            if (e.key === 'ArrowLeft') car.x -= 10;
+            if (e.key === 'ArrowRight') car.x += 10;
         });
 
-        requestAnimationFrame(updateGame);
-    }
-
-    // Réinitialiser le jeu
-    function resetGame() {
-        car.x = canvas.width / 2 - 25;
-        car.y = canvas.height - 60;
-        obstacles = [];
-        score = 0;
-        gameSpeed = 2;
-    }
-
-    // Mouvement de la voiture
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowLeft' && car.x > 0) {
-            car.x -= car.speed;
-        }
-        if (e.key === 'ArrowRight' && car.x < canvas.width - car.width) {
-            car.x += car.speed;
-        }
-    });
-
-    // Démarrer le jeu
-    updateGame();
-</script>
+        updateGame();
+    </script>
 
 </body>
 </html>
