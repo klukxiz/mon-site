@@ -22,38 +22,13 @@
         }
 
         #leaderboard {
-            margin-top: 20px;
-            color: #fff; /* Texte blanc */
-            background-color: #333; /* Fond sombre */
+            font-size: 18px;
+            color: black;
+            background-color: white;
             padding: 10px;
-            border-radius: 5px;
+            margin-top: 20px;
         }
 
-        #leaderboard h2 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        #leaderboard ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #leaderboard li {
-            font-size: 18px;
-            margin: 5px 0;
-        }
-
-        #playerNameDiv {
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-
-        #playerName {
-            padding: 5px;
-            font-size: 16px;
-            width: 150px;
-        }
     </style>
 </head>
 <body>
@@ -61,13 +36,6 @@
     <h1>Mini-Jeu Pac-Man</h1>
     <p>Attrapez toutes les pastilles !</p>
     <p id="score">Score: 0</p>
-
-    <!-- Champ de texte pour entrer le pseudo -->
-    <div id="playerNameDiv">
-        <label for="playerName">Entrez votre pseudo : </label>
-        <input type="text" id="playerName" placeholder="Votre pseudo" required>
-        <button onclick="startGame()" style="margin-left: 10px; padding: 5px 10px;">Commencer le jeu</button>
-    </div>
 
     <!-- Bouton Quitter le jeu -->
     <button onclick="window.location.href='index.html'" style="
@@ -84,10 +52,8 @@
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <div id="leaderboard">
-        <h2>Leaderboard</h2>
-        <ul id="leaderboardList">
-            <!-- Liste des meilleurs scores -->
-        </ul>
+        <h3>Leaderboard</h3>
+        <ul id="scoreList"></ul>
     </div>
 
     <script>
@@ -96,12 +62,12 @@
 
         let pacman = { x: 100, y: 100, radius: 15, dx: 0, dy: 0, speed: 5 };
         let ghosts = [
-            { x: 500, y: 100, radius: 20, dx: 1, dy: 0, color: 'red', speed: 1 },
-            { x: 600, y: 300, radius: 20, dx: -1, dy: 0, color: 'blue', speed: 1 }
+            { x: 500, y: 100, radius: 20, dx: 1, dy: 0, color: 'red' },
+            { x: 600, y: 300, radius: 20, dx: -1, dy: 0, color: 'blue' }
         ];
         let pills = [];
         let score = 0;
-        let playerName = ''; // Le pseudo du joueur
+        let playerName = prompt("Entrez votre pseudo");
 
         // Fonction pour dessiner Pac-Man
         function drawPacMan() {
@@ -152,22 +118,12 @@
             // Déplacer les fantômes (suivre Pac-Man)
             ghosts.forEach(ghost => {
                 let angle = Math.atan2(pacman.y - ghost.y, pacman.x - ghost.x);
-                ghost.dx = Math.cos(angle) * ghost.speed;
-                ghost.dy = Math.sin(angle) * ghost.speed;
-
-                ghosts.forEach((otherGhost, otherIndex) => {
-                    if (ghost !== otherGhost) {
-                        let distance = Math.hypot(ghost.x - otherGhost.x, ghost.y - otherGhost.y);
-                        if (distance < ghost.radius * 2) {
-                            ghost.dx *= -1;
-                            ghost.dy *= -1;
-                        }
-                    }
-                });
-
+                ghost.dx = Math.cos(angle) * 1;  // Vitesse constante
+                ghost.dy = Math.sin(angle) * 1;
                 ghost.x += ghost.dx;
                 ghost.y += ghost.dy;
 
+                // Collision avec les bords pour les fantômes
                 if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
                 if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
             });
@@ -175,22 +131,9 @@
             // Détecter la collision avec les pastilles
             pills.forEach((pill, index) => {
                 if (Math.hypot(pill.x - pacman.x, pill.y - pacman.y) < pacman.radius + 5) {
-                    pills.splice(index, 1);
-                    score += 10;
+                    pills.splice(index, 1); // Retire la pastille
+                    score += 10; // Ajoute des points
                     document.getElementById('score').textContent = 'Score: ' + score;
-
-                    if (score % 100 === 0) {
-                        ghosts.forEach(ghost => ghost.speed += 0.2);
-                        ghosts.push({
-                            x: Math.random() * canvas.width,
-                            y: Math.random() * canvas.height,
-                            radius: 20,
-                            dx: Math.random() > 0.5 ? 1 : -1,
-                            dy: Math.random() > 0.5 ? 1 : -1,
-                            color: getRandomColor(),
-                            speed: 1
-                        });
-                    }
                 }
             });
 
@@ -199,19 +142,37 @@
                 generatePills();
             }
 
+            // Ajouter un fantôme tous les 100 points
+            if (score % 100 === 0 && score !== 0) {
+                addGhost();
+            }
+
             // Détecter la collision avec un fantôme
             ghosts.forEach(ghost => {
                 if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < ghost.radius + pacman.radius) {
                     // Game Over: Réinitialisation du jeu
-                    saveScore(score); // Sauvegarde du score avec pseudo
                     alert("Game Over! Votre score : " + score);
                     location.reload(); // Recharge la page pour recommencer
                 }
             });
 
+            // Dessiner Pac-Man, les fantômes et les pastilles
             drawPacMan();
             drawGhosts();
             drawPills();
+        }
+
+        // Fonction pour ajouter un fantôme
+        function addGhost() {
+            let newGhost = {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: 20,
+                dx: Math.random() < 0.5 ? 1 : -1,  // Direction aléatoire
+                dy: Math.random() < 0.5 ? 1 : -1,  // Direction aléatoire
+                color: 'green'
+            };
+            ghosts.push(newGhost);
         }
 
         // Fonction pour contrôler Pac-Man avec les touches fléchées
@@ -222,6 +183,7 @@
             if (event.key === 'ArrowRight') pacman.dx = pacman.speed;
         });
 
+        // Fonction pour arrêter Pac-Man lorsqu'une touche est relâchée
         document.addEventListener('keyup', function(event) {
             if (event.key === 'ArrowUp' || event.key === 'ArrowDown') pacman.dy = 0;
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') pacman.dx = 0;
@@ -229,50 +191,22 @@
 
         // Fonction pour générer des pastilles
         function generatePills() {
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 10; i++) { // Crée 10 pastilles
                 let x = Math.random() * (canvas.width - 10) + 5;
                 let y = Math.random() * (canvas.height - 10) + 5;
                 pills.push({ x, y });
             }
         }
 
-        // Fonction pour démarrer le jeu
-        function startGame() {
-            playerName = document.getElementById('playerName').value.trim();
-            if (!playerName) {
-                alert("Veuillez entrer un pseudo.");
-                return;
-            }
-
-            document.getElementById('playerNameDiv').style.display = 'none'; // Cache le champ du pseudo
+        // Fonction d'initialisation du jeu
+        function init() {
             generatePills();
-            setInterval(updateGame, 1000 / 60); // Mise à jour du jeu 60 fois par seconde
+            setInterval(updateGame, 20); // Met à jour le jeu toutes les 20ms
         }
 
-        // Fonction pour sauvegarder le score dans le leaderboard
-        function saveScore(score) {
-            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-            leaderboard.push({ name: playerName, score: score });
-            leaderboard.sort((a, b) => b.score - a.score); // Tri décroissant par score
-            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-        }
-
-        // Fonction pour afficher le leaderboard
-        function updateLeaderboard() {
-            const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-            const leaderboardList = document.getElementById('leaderboardList');
-            leaderboardList.innerHTML = ''; // Vider la liste avant de l'actualiser
-            leaderboard.forEach(entry => {
-                const li = document.createElement('li');
-                li.textContent = `${entry.name}: ${entry.score}`;
-                leaderboardList.appendChild(li);
-            });
-        }
-
-        // Mettre à jour le leaderboard au chargement de la page
-        window.onload = updateLeaderboard;
-
+        init();
     </script>
 
 </body>
 </html>
+
