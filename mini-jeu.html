@@ -2,21 +2,12 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mini Jeu</title>
+  <title>Mini Jeu de Voiture</title>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background-color: #222;
-      font-family: Arial, sans-serif;
-    }
-
     canvas {
       display: block;
-      background-color: #333;
       margin: 0 auto;
-      border: 2px solid #fff;
+      background-color: #222;
     }
 
     #playMusicBtn {
@@ -24,7 +15,7 @@
       top: 20px;
       right: 20px;
       padding: 12px 20px;
-      background-color: #ff4757;
+      background-color: #28a745;
       color: white;
       border: none;
       border-radius: 8px;
@@ -36,93 +27,108 @@
     }
 
     #playMusicBtn:hover {
-      background-color: #e84118;
+      background-color: #218838;
     }
   </style>
 </head>
 <body>
-  <!-- Canvas du jeu -->
-  <canvas id="gameCanvas" width="600" height="400"></canvas>
-
-  <!-- Bouton musique -->
   <button id="playMusicBtn">🎵 Lancer la musique</button>
-  <audio id="gameMusic" src="assets/music/musique.mp3" loop></audio>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
 
   <script>
-    // Lancer la musique
-    const music = document.getElementById("gameMusic");
-    const playBtn = document.getElementById("playMusicBtn");
-
-    playBtn.addEventListener("click", () => {
-      music.play().then(() => {
-        console.log("Musique lancée !");
-        playBtn.style.display = "none";
-      }).catch(err => {
-        console.error("Erreur : ", err);
-      });
-    });
-
-    // Petit jeu : une voiture évite des obstacles (exemple simplifié)
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    const car = { x: 275, y: 350, width: 50, height: 30, speed: 5 };
-    const obstacles = [];
-    let gameOver = false;
+    const car = {
+      x: canvas.width / 2 - 15,
+      y: canvas.height - 60,
+      width: 30,
+      height: 50,
+      color: "lime"
+    };
+
+    let obstacles = [];
+    let speed = 3;
+    let keys = {};
+
+    const music = new Audio("assetsmusic/phonk.mp3");
+
+    document.getElementById("playMusicBtn").addEventListener("click", () => {
+      music.play();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      keys[e.key] = true;
+    });
+
+    document.addEventListener("keyup", (e) => {
+      keys[e.key] = false;
+    });
 
     function drawCar() {
-      ctx.fillStyle = "#0f0";
+      ctx.fillStyle = car.color;
       ctx.fillRect(car.x, car.y, car.width, car.height);
     }
 
-    function drawObstacles() {
-      ctx.fillStyle = "#f00";
-      obstacles.forEach(ob => {
-        ctx.fillRect(ob.x, ob.y, ob.width, ob.height);
-        ob.y += ob.speed;
-      });
+    function drawObstacle(obstacle) {
+      ctx.fillStyle = "red";
+      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     }
 
-    function spawnObstacle() {
-      const width = 40;
-      const x = Math.random() * (canvas.width - width);
-      obstacles.push({ x, y: 0, width, height: 20, speed: 3 });
-    }
-
-    function checkCollision() {
-      for (let ob of obstacles) {
-        if (
-          car.x < ob.x + ob.width &&
-          car.x + car.width > ob.x &&
-          car.y < ob.y + ob.height &&
-          car.y + car.height > ob.y
-        ) {
-          gameOver = true;
-          music.pause();
-          alert("BOUM ! Collision !");
-          window.location.href = "index.html";
-        }
+    function moveCar() {
+      if (keys["ArrowLeft"] && car.x > 0) {
+        car.x -= 5;
+      }
+      if (keys["ArrowRight"] && car.x < canvas.width - car.width) {
+        car.x += 5;
       }
     }
 
-    function gameLoop() {
-      if (gameOver) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawCar();
-      drawObstacles();
-      checkCollision();
-      requestAnimationFrame(gameLoop);
+    function checkCollision(obstacle) {
+      return (
+        car.x < obstacle.x + obstacle.width &&
+        car.x + car.width > obstacle.x &&
+        car.y < obstacle.y + obstacle.height &&
+        car.y + car.height > obstacle.y
+      );
     }
 
-    setInterval(spawnObstacle, 1000);
+    function updateGame() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCar();
+      moveCar();
 
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "ArrowLeft" && car.x > 0) car.x -= car.speed;
-      if (e.key === "ArrowRight" && car.x + car.width < canvas.width)
-        car.x += car.speed;
-    });
+      if (Math.random() < 0.02) {
+        const obsWidth = 30 + Math.random() * 40;
+        obstacles.push({
+          x: Math.random() * (canvas.width - obsWidth),
+          y: -50,
+          width: obsWidth,
+          height: 20
+        });
+      }
 
-    gameLoop();
+      for (let i = 0; i < obstacles.length; i++) {
+        const obs = obstacles[i];
+        obs.y += speed;
+
+        drawObstacle(obs);
+
+        if (checkCollision(obs)) {
+          window.location.href = "index.html";
+        }
+      }
+
+      // Supprimer les obstacles en dehors du canvas
+      obstacles = obstacles.filter(obs => obs.y < canvas.height);
+
+      // Augmenter progressivement la vitesse
+      speed += 0.001;
+
+      requestAnimationFrame(updateGame);
+    }
+
+    updateGame();
   </script>
 </body>
 </html>
