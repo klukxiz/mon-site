@@ -28,20 +28,19 @@
     <p>Attrapez toutes les pastilles !</p>
     <p id="score">Score: 0</p>
 
-<!-- Bouton Quitter le jeu -->
-<button onclick="window.location.href='index.html'" style="
-    margin-bottom: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #FF5733;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-">Quitter le jeu</button>
+    <!-- Bouton Quitter le jeu -->
+    <button onclick="window.location.href='index.html'" style="
+        margin-bottom: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #FF5733;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    ">Quitter le jeu</button>
 
-<canvas id="gameCanvas" width="800" height="600"></canvas>
-
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -95,26 +94,26 @@
             pacman.x += pacman.dx;
             pacman.y += pacman.dy;
 
-ghosts.forEach((ghost, index) => {
-    if (index === 0) {
-        // 👻 Fantôme qui poursuit Pac-Man
-        const dx = pacman.x - ghost.x;
-        const dy = pacman.y - ghost.y;
-        const distance = Math.hypot(dx, dy);
-        if (distance > 1) {
-            ghost.x += (dx / distance) * 1; // Vitesse lente (1)
-            ghost.y += (dy / distance) * 1;
-        }
-    } else {
-        // 🌀 Fantôme classique
-        ghost.x += ghost.dx;
-        ghost.y += ghost.dy;
+            // Déplacer les fantômes
+            ghosts.forEach((ghost, index) => {
+                if (index === 0) {
+                    // 👻 Fantôme qui poursuit Pac-Man
+                    const dx = pacman.x - ghost.x;
+                    const dy = pacman.y - ghost.y;
+                    const distance = Math.hypot(dx, dy);
+                    if (distance > 1) {
+                        ghost.x += (dx / distance) * 1; // Vitesse lente (1)
+                        ghost.y += (dy / distance) * 1;
+                    }
+                } else {
+                    // 🌀 Fantôme classique
+                    ghost.x += ghost.dx;
+                    ghost.y += ghost.dy;
 
-        if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
-        if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
-    }
-});
-
+                    if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
+                    if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
+                }
+            });
 
             // Détecter la collision avec les pastilles
             pills.forEach((pill, index) => {
@@ -125,17 +124,13 @@ ghosts.forEach((ghost, index) => {
                 }
             });
 
-            let collisionDistance = ghost.radius + pacman.radius + 5; // Ajouter une marge de sécurité
-
-// Détecter la collision avec un fantôme avec la nouvelle distance
-ghosts.forEach(ghost => {
-    if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < collisionDistance) {
-        // Game Over: Réinitialisation du jeu
-        alert("Game Over! Votre score : " + score);
-        location.reload(); // Recharge la page pour recommencer
-    }
-});
-
+            // Détecter la collision avec un fantôme
+            let collisionDistance = pacman.radius + 5 + ghosts[0].radius; // Ajouter une marge de sécurité
+            ghosts.forEach(ghost => {
+                if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < collisionDistance) {
+                    // Game Over: Réinitialisation du jeu
+                    alert("Game Over! Votre score : " + score);
+                    location.reload(); // Recharge la page pour recommencer
                 }
             });
 
