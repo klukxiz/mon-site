@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini-jeu voiture</title>
+    <title>Mini-jeu voiture réaliste</title>
     <style>
         body {
             background-color: #333;
@@ -13,38 +13,44 @@
         }
 
         #gameCanvas {
-            background-color: #fff;
+            background-color: #87CEEB;
             display: block;
             margin: 0 auto;
             position: relative;
         }
 
-        /* Définir la taille de la voiture */
+        /* Style pour la voiture avec une image */
         #car {
             position: absolute;
-            width: 50px;
-            height: 100px;
-            background-image: url('assets/car.png'); /* Image de la voiture */
-            background-size: cover;
-            transition: transform 0.1s; /* Transition douce pour la rotation de la voiture */
+            width: 70px;
+            height: 140px;
+            background-image: url('assets/car.png'); /* Utilise une image de voiture */
+            background-size: contain;
+            background-repeat: no-repeat;
+            transition: transform 0.1s ease; /* Ajout de la transition pour la rotation */
         }
 
-        /* Effet de collision (pour la voiture) */
-        .crash {
-            animation: crashAnimation 0.5s forwards;
+        /* Effets visuels comme les traces de pneus */
+        .smoke {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: gray;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: smoke 1s ease-in-out infinite;
         }
 
-        @keyframes crashAnimation {
+        @keyframes smoke {
             0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.2); /* Animation de crash, l'agrandissement pour l'impact */
+                transform: scale(0.5);
             }
             100% {
-                transform: scale(0.8); /* Rétablissement après l'impact */
+                transform: scale(1.5);
+                opacity: 0;
             }
         }
+
     </style>
 </head>
 <body>
@@ -57,35 +63,45 @@ let canvas = document.getElementById("gameCanvas");
 let ctx = canvas.getContext("2d");
 
 let car = {
-    x: canvas.width / 2 - 25,  // Position X de la voiture
-    y: canvas.height - 120,  // Position Y de la voiture
-    width: 50,
-    height: 100,
+    x: canvas.width / 2 - 35,  // Position X de la voiture
+    y: canvas.height - 160,    // Position Y de la voiture
+    width: 70,
+    height: 140,
     speed: 5,
     dx: 0,
+    dy: 0,
+    angle: 0, // Pour la rotation de la voiture
     image: new Image(),
 };
 
 // Charger l'image de la voiture
-car.image.src = 'assets/car.png'; // Le chemin de l'image de la voiture
+car.image.src = 'assets/car.png'; // Assure-toi que l'image est dans le dossier "assets"
 
 // Obstacle
 let obstacles = [];
 let score = 0;
 
-// Fonction pour dessiner la voiture
+// Fonction pour dessiner la voiture avec rotation
 function drawCar() {
-    ctx.drawImage(car.image, car.x, car.y, car.width, car.height);
+    ctx.save();
+    ctx.translate(car.x + car.width / 2, car.y + car.height / 2); // Déplacer le centre de rotation
+    ctx.rotate(car.angle); // Appliquer la rotation
+    ctx.drawImage(car.image, -car.width / 2, -car.height / 2, car.width, car.height); // Dessiner la voiture
+    ctx.restore();
 }
 
-// Fonction pour gérer les déplacements de la voiture
+// Fonction pour déplacer la voiture
 function moveCar() {
     car.x += car.dx;
+    car.y += car.dy;
+
     if (car.x < 0) car.x = 0;
     if (car.x + car.width > canvas.width) car.x = canvas.width - car.width;
+    if (car.y < 0) car.y = 0;
+    if (car.y + car.height > canvas.height) car.y = canvas.height - car.height;
 }
 
-// Fonction pour générer les obstacles
+// Fonction pour générer des obstacles
 function generateObstacles() {
     let obstacleWidth = Math.random() * 100 + 50;
     let obstacleX = Math.random() * (canvas.width - obstacleWidth);
@@ -154,15 +170,27 @@ function updateGame() {
 document.addEventListener("keydown", function(event) {
     if (event.key === "ArrowLeft") {
         car.dx = -car.speed;
+        car.angle = -0.1; // Incliner la voiture vers la gauche
     }
     if (event.key === "ArrowRight") {
         car.dx = car.speed;
+        car.angle = 0.1; // Incliner la voiture vers la droite
+    }
+    if (event.key === "ArrowUp") {
+        car.dy = -car.speed;
+    }
+    if (event.key === "ArrowDown") {
+        car.dy = car.speed;
     }
 });
 
 document.addEventListener("keyup", function(event) {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
         car.dx = 0;
+        car.angle = 0; // Réinitialiser la rotation lorsque les touches sont relâchées
+    }
+    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        car.dy = 0;
     }
 });
 
