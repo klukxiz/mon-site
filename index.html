@@ -179,7 +179,6 @@
         }
 
         function searchGame(query) {
-            // Remplace "YOUR_API_KEY" par ta clé API RAWG
             fetch(`https://api.rawg.io/api/games?key=YOUR_API_KEY&q=${query}&page_size=5`)
                 .then(response => response.json())
                 .then(data => {
@@ -248,7 +247,3 @@
 
 </body>
 </html>
-
-
-
-
