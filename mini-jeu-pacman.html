@@ -28,19 +28,20 @@
     <p>Attrapez toutes les pastilles !</p>
     <p id="score">Score: 0</p>
 
-    <!-- Bouton Quitter le jeu -->
-    <button onclick="window.location.href='index.html'" style="
-        margin-bottom: 10px;
-        padding: 10px 20px;
-        font-size: 16px;
-        background-color: #FF5733;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    ">Quitter le jeu</button>
+<!-- Bouton Quitter le jeu -->
+<button onclick="window.location.href='index.html'" style="
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #FF5733;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+">Quitter le jeu</button>
 
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -94,25 +95,20 @@
             pacman.x += pacman.dx;
             pacman.y += pacman.dy;
 
-            // Déplacer les fantômes
-            ghosts.forEach((ghost, index) => {
-                if (index === 0) {
-                    // 👻 Fantôme qui poursuit Pac-Man
-                    const dx = pacman.x - ghost.x;
-                    const dy = pacman.y - ghost.y;
-                    const distance = Math.hypot(dx, dy);
-                    if (distance > 1) {
-                        ghost.x += (dx / distance) * 1; // Vitesse lente (1)
-                        ghost.y += (dy / distance) * 1;
-                    }
-                } else {
-                    // 🌀 Fantôme classique
-                    ghost.x += ghost.dx;
-                    ghost.y += ghost.dy;
+            // Collision avec les bords
+            if (pacman.x < pacman.radius) pacman.x = pacman.radius;
+            if (pacman.x > canvas.width - pacman.radius) pacman.x = canvas.width - pacman.radius;
+            if (pacman.y < pacman.radius) pacman.y = pacman.radius;
+            if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
 
-                    if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
-                    if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
-                }
+            // Déplacer les fantômes
+            ghosts.forEach(ghost => {
+                ghost.x += ghost.dx;
+                ghost.y += ghost.dy;
+
+                // Collision avec les bords pour les fantômes
+                if (ghost.x < ghost.radius || ghost.x > canvas.width - ghost.radius) ghost.dx *= -1;
+                if (ghost.y < ghost.radius || ghost.y > canvas.height - ghost.radius) ghost.dy *= -1;
             });
 
             // Détecter la collision avec les pastilles
@@ -125,9 +121,8 @@
             });
 
             // Détecter la collision avec un fantôme
-            let collisionDistance = pacman.radius + 5 + ghosts[0].radius; // Ajouter une marge de sécurité
             ghosts.forEach(ghost => {
-                if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < collisionDistance) {
+                if (Math.hypot(ghost.x - pacman.x, ghost.y - pacman.y) < ghost.radius + pacman.radius) {
                     // Game Over: Réinitialisation du jeu
                     alert("Game Over! Votre score : " + score);
                     location.reload(); // Recharge la page pour recommencer
@@ -146,6 +141,12 @@
             if (event.key === 'ArrowDown') pacman.dy = pacman.speed;
             if (event.key === 'ArrowLeft') pacman.dx = -pacman.speed;
             if (event.key === 'ArrowRight') pacman.dx = pacman.speed;
+        });
+
+        // Fonction pour arrêter Pac-Man lorsqu'une touche est relâchée
+        document.addEventListener('keyup', function(event) {
+            if (event.key === 'ArrowUp' || event.key === 'ArrowDown') pacman.dy = 0;
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') pacman.dx = 0;
         });
 
         // Fonction pour générer des pastilles
@@ -168,3 +169,4 @@
 
 </body>
 </html>
+
