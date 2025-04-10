@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -53,6 +57,7 @@
         ];
         let pills = [];
         let score = 0;
+        let lastScore = 0;
 
         // Fonction pour dessiner Pac-Man
         function drawPacMan() {
@@ -99,6 +104,27 @@
             if (pacman.x > canvas.width - pacman.radius) pacman.x = canvas.width - pacman.radius;
             if (pacman.y < pacman.radius) pacman.y = pacman.radius;
             if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
+
+            // Vérification du score et ajustement de la vitesse des fantômes
+            if (score > 0 && score % 100 === 0 && score !== lastScore) {
+                lastScore = score;
+                // Augmenter la vitesse des fantômes
+                ghosts.forEach(ghost => {
+                    ghost.dx *= 1.1;
+                    ghost.dy *= 1.1;
+                });
+
+                // Ajouter un fantôme supplémentaire
+                let newGhost = { 
+                    x: Math.random() * canvas.width, 
+                    y: Math.random() * canvas.height, 
+                    radius: 20, 
+                    dx: (Math.random() > 0.5 ? 1 : -1), 
+                    dy: (Math.random() > 0.5 ? 1 : -1), 
+                    color: randomColor() // Change la couleur aléatoirement
+                };
+                ghosts.push(newGhost);
+            }
 
             // Déplacer les fantômes (suivre Pac-Man)
             ghosts.forEach(ghost => {
@@ -166,6 +192,12 @@
             }
         }
 
+        // Fonction pour générer une couleur aléatoire
+        function randomColor() {
+            const colors = ['red', 'blue', 'green', 'pink', 'orange'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
         // Fonction d'initialisation du jeu
         function init() {
             generatePills();
@@ -177,6 +209,3 @@
 
 </body>
 </html>
-
-
-
