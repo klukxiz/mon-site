@@ -9,9 +9,8 @@
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f4;
+            padding-top: 70px;
             text-align: center;
-            padding-top: 50px;
-            margin: 0;
         }
 
         .hero-section {
@@ -36,167 +35,82 @@
             text-align: center;
             padding: 10px 0;
         }
-
-        .game-container {
-            width: 800px;
-            height: 600px;
-            margin: 0 auto;
-            overflow: hidden;
-            position: relative;
-            border: 2px solid black;
-            background-color: #e0e0e0;
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        .site-content {
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
 
-    <!-- Section de jeu -->
-    <div class="game-container">
-        <canvas id="gameCanvas"></canvas>
-    </div>
+    <!-- Barre de navigation sticky -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Mon Super Site</a>
+        </div>
+    </nav>
 
-    <!-- Contenu du site -->
-    <div class="site-content">
-        <h1>Bienvenue sur le site de Klukxiz</h1>
-        <p>Explorez plus de contenus et amusez-vous avec nos mini-jeux !</p>
-        <a href="index.html" class="btn btn-custom btn-lg">Retour à l'accueil</a>
-    </div>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-4">Bienvenue sur mon Super Site</h1>
+            <p class="lead">Ceci est un site créé avec **Bootstrap** et un peu de style personnalisé. Explorez et profitez !</p>
+            <a href="#about" class="btn btn-custom btn-lg">Découvrir plus</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="container my-5">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>Qui suis-je ?</h2>
+                <p>Je suis Klukxiz, passionné par les jeux vidéo, la création de contenu, et la technologie.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mini-Jeux Section -->
+    <section id="mini-games" class="container my-5">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>Mini-jeu Voiture</h2>
+                <p>Évite les obstacles et essaie de rouler aussi longtemps que possible !</p>
+                <a href="mini-jeu-voiture.html" class="btn btn-custom btn-lg">Jouer à Voiture</a>
+            </div>
+            <div class="col-lg-6">
+                <h2>Mini-jeu Pac-Man</h2>
+                <p>Attrape toutes les pastilles tout en évitant les fantômes !</p>
+                <a href="mini-jeu-pacman.html" class="btn btn-custom btn-lg">Jouer à Pac-Man</a>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <div class="footer">
         <p>&copy; 2025 Mon Super Site. Tous droits réservés.</p>
     </div>
 
+    <!-- JavaScript pour la séquence de touches -->
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
+        let keySequence = [];
+        const secretSequenceVoiture = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; // Séquence pour le jeu de voiture
+        const secretSequencePacman = ['ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; // Séquence pour le jeu Pac-Man
 
-        // Car object
-        const car = {
-            x: canvas.width / 2 - 25,
-            y: canvas.height - 70,
-            width: 50,
-            height: 70,
-            speed: 5,
-            dx: 0
-        };
-
-        // Array to store obstacles
-        let obstacles = [];
-
-        // Setting the speed of the game
-        let obstacleSpeed = 2; // Speed of obstacles (lower for easier game)
-
-        // Create obstacles
-        function createObstacle() {
-            let size = Math.random() * 30 + 20; // Random size between 20 and 50 pixels (shorter obstacles)
-            let xPos = Math.random() * (canvas.width - size); // Random position on X-axis
-            let yPos = -size; // Start obstacles off-screen
-            obstacles.push({ x: xPos, y: yPos, size: size });
-        }
-
-        // Move obstacles
-        function moveObstacles() {
-            for (let i = 0; i < obstacles.length; i++) {
-                obstacles[i].y += obstacleSpeed; // Move obstacles down the screen
-                if (obstacles[i].y > canvas.height) {
-                    obstacles.splice(i, 1); // Remove obstacles once they pass the screen
-                    i--;
-                }
+        // Fonction pour gérer la séquence de touches
+        document.addEventListener('keydown', function(event) {
+            keySequence.push(event.key);
+            if (keySequence.length > secretSequenceVoiture.length) {
+                keySequence.shift(); // On retire la première touche si la séquence est trop longue
             }
-        }
 
-        // Draw obstacles on the canvas
-        function drawObstacles() {
-            ctx.fillStyle = 'red'; // Color of the obstacles
-            for (let i = 0; i < obstacles.length; i++) {
-                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].size, obstacles[i].size);
+            // Si la séquence pour le jeu de voiture est correcte
+            if (keySequence.join(',') === secretSequenceVoiture.join(',')) {
+                // Rediriger vers le mini-jeu de la voiture
+                window.location.href = "mini-jeu-voiture.html";
             }
-        }
 
-        // Draw the car
-        function drawCar() {
-            ctx.fillStyle = 'blue'; // Color of the car
-            ctx.fillRect(car.x, car.y, car.width, car.height);
-        }
-
-        // Clear the canvas
-        function clear() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        // Update the game every frame
-        function updateGame() {
-            clear();
-            drawCar();
-            moveObstacles();
-            drawObstacles();
-            checkCollision();
-            requestAnimationFrame(updateGame); // Keep looping
-        }
-
-        // Check for collision between car and obstacles
-        function checkCollision() {
-            for (let i = 0; i < obstacles.length; i++) {
-                if (car.x < obstacles[i].x + obstacles[i].size &&
-                    car.x + car.width > obstacles[i].x &&
-                    car.y < obstacles[i].y + obstacles[i].size &&
-                    car.y + car.height > obstacles[i].y) {
-                    // If there is a collision, reset the game or end it
-                    resetGame();
-                }
+            // Si la séquence pour le jeu Pac-Man est correcte
+            if (keySequence.join(',') === secretSequencePacman.join(',')) {
+                // Rediriger vers le mini-jeu de Pac-Man
+                window.location.href = "mini-jeu-pacman.html";
             }
-        }
-
-        // Reset the game after a collision
-        function resetGame() {
-            obstacles = []; // Reset obstacles
-            car.x = canvas.width / 2 - car.width / 2; // Reset car position
-            car.y = canvas.height - 70; // Reset car position
-            alert("Game Over! Try again.");
-        }
-
-        // Move car left or right
-        function moveCar() {
-            car.x += car.dx;
-            if (car.x < 0) car.x = 0; // Prevent car from moving off-screen
-            if (car.x + car.width > canvas.width) car.x = canvas.width - car.width; // Prevent car from moving off-screen
-        }
-
-        // Handle keyboard input
-        function keyDown(e) {
-            if (e.key === "ArrowRight") {
-                car.dx = car.speed;
-            } else if (e.key === "ArrowLeft") {
-                car.dx = -car.speed;
-            }
-        }
-
-        function keyUp(e) {
-            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-                car.dx = 0; // Stop moving when key is released
-            }
-        }
-
-        // Adjust game difficulty (Create obstacles every 2 seconds)
-        let obstacleInterval = setInterval(createObstacle, 2000); // Create an obstacle every 2 seconds
-
-        // Event listeners for keyboard controls
-        document.addEventListener("keydown", keyDown);
-        document.addEventListener("keyup", keyUp);
-
-        // Start the game loop
-        updateGame();
+        });
     </script>
 
 </body>
