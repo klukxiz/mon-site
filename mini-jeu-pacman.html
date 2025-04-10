@@ -101,20 +101,21 @@
             if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
 
             // Déplacer les fantômes (suivre Pac-Man)
-            ghosts.forEach(ghost => {
+            ghosts.forEach((ghost, index) => {
                 // Calculer le vecteur directionnel du fantôme vers Pac-Man
                 let angle = Math.atan2(pacman.y - ghost.y, pacman.x - ghost.x);
                 ghost.dx = Math.cos(angle) * 1;  // Vitesse constante
                 ghost.dy = Math.sin(angle) * 1;
 
-                // Vérifier la distance avec les autres fantômes
-                ghosts.forEach(otherGhost => {
-                    if (ghost !== otherGhost) {
+                // Vérifier la distance avec les autres fantômes pour éviter les collisions
+                ghosts.forEach((otherGhost, otherIndex) => {
+                    if (index !== otherIndex) {
                         let distance = Math.hypot(ghost.x - otherGhost.x, ghost.y - otherGhost.y);
-                        if (distance < ghost.radius * 2) {  // Si les fantômes se touchent
-                            // Inverser la direction ou ajuster les positions
-                            ghost.dx *= -1;
-                            ghost.dy *= -1;
+                        if (distance < ghost.radius * 2) {  // Si les fantômes sont trop proches
+                            // Ajuster légèrement la direction du fantôme pour éviter la collision
+                            let offsetAngle = Math.atan2(ghost.y - otherGhost.y, ghost.x - otherGhost.x);
+                            ghost.x += Math.cos(offsetAngle) * 2;  // Déplacer légèrement à gauche ou à droite
+                            ghost.y += Math.sin(offsetAngle) * 2;  // Déplacer légèrement en haut ou en bas
                         }
                     }
                 });
@@ -190,4 +191,5 @@
 
 </body>
 </html>
+
 
