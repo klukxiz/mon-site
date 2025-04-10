@@ -1,134 +1,148 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Mini Jeu de Voiture</title>
-  <style>
-    canvas {
-      display: block;
-      margin: 0 auto;
-      background-color: #222;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Mini-Jeu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
 
-    #playMusicBtn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      z-index: 1000;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      transition: background-color 0.3s ease;
-    }
+        #gameCanvas {
+            background-color: #000;
+            width: 600px;
+            height: 400px;
+            margin: 0 auto;
+            display: block;
+        }
 
-    #playMusicBtn:hover {
-      background-color: #218838;
-    }
-  </style>
+        #restartButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: green;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <button id="playMusicBtn">🎵 Lancer la musique</button>
-  <canvas id="gameCanvas" width="400" height="600"></canvas>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+    <canvas id="gameCanvas"></canvas>
 
-    const car = {
-      x: canvas.width / 2 - 15,
-      y: canvas.height - 60,
-      width: 30,
-      height: 50,
-      color: "lime"
-    };
+    <button id="restartButton" onclick="restartGame()">Restart</button>
 
-    let obstacles = [];
-    let speed = 3;
-    let keys = {};
+    <!-- Musique du jeu -->
+    <audio id="backgroundMusic" loop>
+        <source src="file:///C:/Users/olivi/OneDrive/Bureau/mon/phonk.mp3" type="audio/mp3">
+        Votre navigateur ne prend pas en charge les fichiers audio.
+    </audio>
 
-    const music = new Audio("assetsmusic/phonk.mp3");
+    <script>
+        // Variables de jeu
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        let gameRunning = true;
 
-    document.getElementById("playMusicBtn").addEventListener("click", () => {
-      music.play();
-    });
+        // Joueur
+        const player = { x: 50, y: canvas.height / 2, width: 20, height: 20, speed: 4 };
 
-    document.addEventListener("keydown", (e) => {
-      keys[e.key] = true;
-    });
+        // Obstacles
+        const obstacles = [];
 
-    document.addEventListener("keyup", (e) => {
-      keys[e.key] = false;
-    });
+        // Initialisation de la musique
+        const backgroundMusic = document.getElementById("backgroundMusic");
+        backgroundMusic.play(); // Joue la musique au démarrage
 
-    function drawCar() {
-      ctx.fillStyle = car.color;
-      ctx.fillRect(car.x, car.y, car.width, car.height);
-    }
-
-    function drawObstacle(obstacle) {
-      ctx.fillStyle = "red";
-      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-    }
-
-    function moveCar() {
-      if (keys["ArrowLeft"] && car.x > 0) {
-        car.x -= 5;
-      }
-      if (keys["ArrowRight"] && car.x < canvas.width - car.width) {
-        car.x += 5;
-      }
-    }
-
-    function checkCollision(obstacle) {
-      return (
-        car.x < obstacle.x + obstacle.width &&
-        car.x + car.width > obstacle.x &&
-        car.y < obstacle.y + obstacle.height &&
-        car.y + car.height > obstacle.y
-      );
-    }
-
-    function updateGame() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawCar();
-      moveCar();
-
-      if (Math.random() < 0.02) {
-        const obsWidth = 30 + Math.random() * 40;
-        obstacles.push({
-          x: Math.random() * (canvas.width - obsWidth),
-          y: -50,
-          width: obsWidth,
-          height: 20
-        });
-      }
-
-      for (let i = 0; i < obstacles.length; i++) {
-        const obs = obstacles[i];
-        obs.y += speed;
-
-        drawObstacle(obs);
-
-        if (checkCollision(obs)) {
-          window.location.href = "index.html";
+        // Logique de jeu
+        function startGame() {
+            canvas.width = 600;
+            canvas.height = 400;
+            spawnObstacle();
+            gameLoop();
         }
-      }
 
-      // Supprimer les obstacles en dehors du canvas
-      obstacles = obstacles.filter(obs => obs.y < canvas.height);
+        // Boucle du jeu
+        function gameLoop() {
+            if (!gameRunning) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Augmenter progressivement la vitesse
-      speed += 0.001;
+            movePlayer();
+            updateObstacles();
+            checkCollisions();
+            render();
 
-      requestAnimationFrame(updateGame);
-    }
+            requestAnimationFrame(gameLoop); // Continue la boucle
+        }
 
-    updateGame();
-  </script>
+        // Déplacer le joueur
+        function movePlayer() {
+            document.addEventListener("keydown", function(event) {
+                if (event.key === "ArrowUp" && player.y > 0) player.y -= player.speed;
+                if (event.key === "ArrowDown" && player.y < canvas.height - player.height) player.y += player.speed;
+            });
+        }
+
+        // Créer des obstacles
+        function spawnObstacle() {
+            let obstacle = { x: canvas.width, y: Math.random() * canvas.height, width: 30, height: 30, speed: 2 };
+            obstacles.push(obstacle);
+
+            setTimeout(spawnObstacle, 2000); // Génère un obstacle toutes les 2 secondes
+        }
+
+        // Mettre à jour les obstacles
+        function updateObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].x -= obstacles[i].speed;
+                if (obstacles[i].x < 0) obstacles.splice(i, 1);
+            }
+        }
+
+        // Vérifier les collisions
+        function checkCollisions() {
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                if (player.x < obs.x + obs.width && player.x + player.width > obs.x && player.y < obs.y + obs.height && player.y + player.height > obs.y) {
+                    endGame();
+                }
+            }
+        }
+
+        // Rendu du joueur et des obstacles
+        function render() {
+            ctx.fillStyle = "red";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            ctx.fillStyle = "blue";
+            for (let i = 0; i < obstacles.length; i++) {
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+            }
+        }
+
+        // Fin du jeu
+        function endGame() {
+            gameRunning = false;
+            backgroundMusic.pause(); // Arrête la musique
+            alert("Game Over!");
+        }
+
+        // Redémarrer le jeu
+        function restartGame() {
+            obstacles.length = 0;
+            player.y = canvas.height / 2;
+            gameRunning = true;
+            backgroundMusic.play();
+            startGame();
+        }
+
+        // Lancer le jeu au démarrage
+        startGame();
+    </script>
 </body>
 </html>
