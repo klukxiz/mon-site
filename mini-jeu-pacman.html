@@ -48,8 +48,8 @@
 
         let pacman = { x: 100, y: 100, radius: 15, dx: 0, dy: 0, speed: 5 };
         let ghosts = [
-            { x: 500, y: 100, radius: 20, dx: 1, dy: 0, color: 'red' },
-            { x: 600, y: 300, radius: 20, dx: -1, dy: 0, color: 'blue' }
+            { x: 500, y: 100, radius: 20, dx: 1, dy: 0, color: 'red', speed: 1 },
+            { x: 600, y: 300, radius: 20, dx: -1, dy: 0, color: 'blue', speed: 1 }
         ];
         let pills = [];
         let score = 0;
@@ -101,21 +101,20 @@
             if (pacman.y > canvas.height - pacman.radius) pacman.y = canvas.height - pacman.radius;
 
             // Déplacer les fantômes (suivre Pac-Man)
-            ghosts.forEach((ghost, index) => {
+            ghosts.forEach(ghost => {
                 // Calculer le vecteur directionnel du fantôme vers Pac-Man
                 let angle = Math.atan2(pacman.y - ghost.y, pacman.x - ghost.x);
-                ghost.dx = Math.cos(angle) * 1;  // Vitesse constante
-                ghost.dy = Math.sin(angle) * 1;
+                ghost.dx = Math.cos(angle) * ghost.speed;  // Vitesse constante
+                ghost.dy = Math.sin(angle) * ghost.speed;
 
                 // Vérifier la distance avec les autres fantômes pour éviter les collisions
                 ghosts.forEach((otherGhost, otherIndex) => {
-                    if (index !== otherIndex) {
+                    if (ghost !== otherGhost) {
                         let distance = Math.hypot(ghost.x - otherGhost.x, ghost.y - otherGhost.y);
-                        if (distance < ghost.radius * 2) {  // Si les fantômes sont trop proches
+                        if (distance < ghost.radius * 2) {
                             // Ajuster légèrement la direction du fantôme pour éviter la collision
-                            let offsetAngle = Math.atan2(ghost.y - otherGhost.y, ghost.x - otherGhost.x);
-                            ghost.x += Math.cos(offsetAngle) * 2;  // Déplacer légèrement à gauche ou à droite
-                            ghost.y += Math.sin(offsetAngle) * 2;  // Déplacer légèrement en haut ou en bas
+                            ghost.dx *= -1;
+                            ghost.dy *= -1;
                         }
                     }
                 });
@@ -134,6 +133,20 @@
                     pills.splice(index, 1); // Retire la pastille
                     score += 10; // Ajoute des points
                     document.getElementById('score').textContent = 'Score: ' + score;
+
+                    // Si le score atteint un multiple de 100, augmenter la vitesse des fantômes et ajouter un fantôme
+                    if (score % 100 === 0) {
+                        ghosts.forEach(ghost => ghost.speed += 0.2); // Augmente la vitesse des fantômes
+                        ghosts.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            radius: 20,
+                            dx: Math.random() > 0.5 ? 1 : -1,
+                            dy: Math.random() > 0.5 ? 1 : -1,
+                            color: getRandomColor(),
+                            speed: 1
+                        });
+                    }
                 }
             });
 
@@ -180,6 +193,12 @@
             }
         }
 
+        // Fonction pour obtenir une couleur aléatoire pour les fantômes
+        function getRandomColor() {
+            const colors = ['red', 'blue', 'green', 'pink', 'yellow'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
         // Fonction d'initialisation du jeu
         function init() {
             generatePills();
@@ -191,5 +210,6 @@
 
 </body>
 </html>
+
 
 
