@@ -3,204 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini-jeu voiture réaliste</title>
+    <title>Mini-Jeu de Voiture</title>
     <style>
         body {
-            background-color: #333;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             overflow: hidden;
         }
 
-        #gameCanvas {
-            background-color: #87CEEB;
+        canvas {
             display: block;
             margin: 0 auto;
-            position: relative;
+            background-color: #dcdcdc;
         }
 
-        /* Style pour la voiture avec une image */
-        #car {
+        .game-over {
             position: absolute;
-            width: 70px;
-            height: 140px;
-            background-image: url('assets/car.png'); /* Utilise une image de voiture */
-            background-size: contain;
-            background-repeat: no-repeat;
-            transition: transform 0.1s ease; /* Ajout de la transition pour la rotation */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            display: none;
         }
-
-        /* Effets visuels comme les traces de pneus */
-        .smoke {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: gray;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: smoke 1s ease-in-out infinite;
-        }
-
-        @keyframes smoke {
-            0% {
-                transform: scale(0.5);
-            }
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-        }
-
     </style>
 </head>
 <body>
 
-<canvas id="gameCanvas" width="800" height="600"></canvas>
+<canvas id="gameCanvas"></canvas>
+<div class="game-over" id="gameOverText">Game Over</div>
+
+<audio id="gameMusic" loop>
+    <source src="assets/music/phonk.mp3" type="audio/mp3">
+    Votre navigateur ne supporte pas la balise audio.
+</audio>
 
 <script>
-// Configuration du jeu
-let canvas = document.getElementById("gameCanvas");
-let ctx = canvas.getContext("2d");
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const gameOverText = document.getElementById('gameOverText');
+    const gameMusic = document.getElementById('gameMusic');
 
-let car = {
-    x: canvas.width / 2 - 35,  // Position X de la voiture
-    y: canvas.height - 160,    // Position Y de la voiture
-    width: 70,
-    height: 140,
-    speed: 5,
-    dx: 0,
-    dy: 0,
-    angle: 0, // Pour la rotation de la voiture
-    image: new Image(),
-};
+    canvas.width = 800;
+    canvas.height = 600;
 
-// Charger l'image de la voiture
-car.image.src = 'assets/car.png'; // Assure-toi que l'image est dans le dossier "assets"
+    let carWidth = 50;
+    let carHeight = 100;
+    let carX = canvas.width / 2 - carWidth / 2;
+    let carY = canvas.height - carHeight - 10;
+    let carSpeed = 5;
 
-// Obstacle
-let obstacles = [];
-let score = 0;
+    let leftPressed = false;
+    let rightPressed = false;
 
-// Fonction pour dessiner la voiture avec rotation
-function drawCar() {
-    ctx.save();
-    ctx.translate(car.x + car.width / 2, car.y + car.height / 2); // Déplacer le centre de rotation
-    ctx.rotate(car.angle); // Appliquer la rotation
-    ctx.drawImage(car.image, -car.width / 2, -car.height / 2, car.width, car.height); // Dessiner la voiture
-    ctx.restore();
-}
+    let obstacles = [];
+    let obstacleSpeed = 2;  // Vitesse réduite pour rendre le jeu plus facile
+    let gameOver = false;
 
-// Fonction pour déplacer la voiture
-function moveCar() {
-    car.x += car.dx;
-    car.y += car.dy;
-
-    if (car.x < 0) car.x = 0;
-    if (car.x + car.width > canvas.width) car.x = canvas.width - car.width;
-    if (car.y < 0) car.y = 0;
-    if (car.y + car.height > canvas.height) car.y = canvas.height - car.height;
-}
-
-// Fonction pour générer des obstacles
-function generateObstacles() {
-    let obstacleWidth = Math.random() * 100 + 50;
-    let obstacleX = Math.random() * (canvas.width - obstacleWidth);
-    obstacles.push({x: obstacleX, y: -100, width: obstacleWidth, height: 30});
-}
-
-// Fonction pour dessiner les obstacles
-function drawObstacles() {
-    for (let i = 0; i < obstacles.length; i++) {
-        ctx.fillStyle = "red";
-        ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+    // Fonction pour démarrer la musique
+    function startMusic() {
+        gameMusic.play().catch(e => {
+            console.log('Erreur de lecture de la musique', e);
+            gameMusic.load(); // Recharger la musique pour tenter une autre lecture
+            gameMusic.play();
+        });
     }
-}
 
-// Fonction pour faire tomber les obstacles
-function moveObstacles() {
-    for (let i = 0; i < obstacles.length; i++) {
-        obstacles[i].y += 2;
-        if (obstacles[i].y > canvas.height) {
-            obstacles.splice(i, 1);
-            score++;
+    // Ajouter un clic pour démarrer la musique (contournement de la restriction de lecture automatique)
+    window.addEventListener('click', () => {
+        if (gameMusic.paused) {
+            startMusic();
+        }
+    });
+
+    // Écoute des touches
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            leftPressed = true;
+        }
+        if (e.key === 'ArrowRight') {
+            rightPressed = true;
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowLeft') {
+            leftPressed = false;
+        }
+        if (e.key === 'ArrowRight') {
+            rightPressed = false;
+        }
+    });
+
+    // Génération des obstacles
+    function generateObstacle() {
+        let obstacleWidth = Math.random() * (canvas.width - 30) + 30;
+        let obstacleX = Math.random() * (canvas.width - obstacleWidth);
+        let obstacleY = -100;
+        obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
+    }
+
+    // Dessiner la voiture
+    function drawCar() {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(carX, carY, carWidth, carHeight);
+    }
+
+    // Dessiner les obstacles
+    function drawObstacles() {
+        ctx.fillStyle = 'blue';
+        for (let i = 0; i < obstacles.length; i++) {
+            let obstacle = obstacles[i];
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         }
     }
-}
 
-// Fonction pour vérifier la collision entre la voiture et les obstacles
-function checkCollision() {
-    for (let i = 0; i < obstacles.length; i++) {
-        if (car.x < obstacles[i].x + obstacles[i].width &&
-            car.x + car.width > obstacles[i].x &&
-            car.y < obstacles[i].y + obstacles[i].height &&
-            car.y + car.height > obstacles[i].y) {
-            // Collision détectée
-            endGame();
+    // Déplacer les obstacles
+    function moveObstacles() {
+        for (let i = 0; i < obstacles.length; i++) {
+            obstacles[i].y += obstacleSpeed;
+        }
+
+        // Supprimer les obstacles qui sont sortis de l'écran
+        obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
+    }
+
+    // Détecter la collision
+    function checkCollision() {
+        for (let i = 0; i < obstacles.length; i++) {
+            let obstacle = obstacles[i];
+            if (carX < obstacle.x + obstacle.width &&
+                carX + carWidth > obstacle.x &&
+                carY < obstacle.y + obstacle.height &&
+                carY + carHeight > obstacle.y) {
+                // Si collision, arrêt du jeu et redirection
+                gameOver = true;
+                gameOverText.style.display = 'block';
+                gameMusic.pause();
+                gameMusic.currentTime = 0;
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // Rediriger vers la page principale
+                }, 3000);
+            }
         }
     }
-}
 
-// Fonction pour afficher le score
-function drawScore() {
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, 10, 30);
-}
+    // Mise à jour du jeu
+    function update() {
+        if (gameOver) return;
 
-// Fonction pour arrêter le jeu
-function endGame() {
-    ctx.fillStyle = "black";
-    ctx.font = "30px Arial";
-    ctx.fillText("Game Over! Score: " + score, canvas.width / 2 - 150, canvas.height / 2);
-    clearInterval(gameInterval); // Arrête le jeu
-}
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-// Fonction pour mettre à jour le jeu
-function updateGame() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawCar();
-    moveCar();
-    drawObstacles();
-    moveObstacles();
-    checkCollision();
-    drawScore();
-}
+        // Déplacement de la voiture
+        if (leftPressed && carX > 0) {
+            carX -= carSpeed;
+        }
+        if (rightPressed && carX < canvas.width - carWidth) {
+            carX += carSpeed;
+        }
 
-// Fonctions pour contrôler la voiture avec les touches fléchées
-document.addEventListener("keydown", function(event) {
-    if (event.key === "ArrowLeft") {
-        car.dx = -car.speed;
-        car.angle = -0.1; // Incliner la voiture vers la gauche
+        drawCar();
+        drawObstacles();
+        moveObstacles();
+        checkCollision();
+
+        requestAnimationFrame(update);
     }
-    if (event.key === "ArrowRight") {
-        car.dx = car.speed;
-        car.angle = 0.1; // Incliner la voiture vers la droite
-    }
-    if (event.key === "ArrowUp") {
-        car.dy = -car.speed;
-    }
-    if (event.key === "ArrowDown") {
-        car.dy = car.speed;
-    }
-});
 
-document.addEventListener("keyup", function(event) {
-    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-        car.dx = 0;
-        car.angle = 0; // Réinitialiser la rotation lorsque les touches sont relâchées
-    }
-    if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-        car.dy = 0;
-    }
-});
-
-// Boucle du jeu
-let gameInterval = setInterval(function() {
-    updateGame();
-}, 1000 / 60); // 60 FPS
-
-// Générer des obstacles toutes les 2 secondes
-setInterval(generateObstacles, 2000);
+    setInterval(generateObstacle, 3000); // Générer un nouvel obstacle toutes les 3 secondes pour diminuer la difficulté
+    update();
 </script>
 
 </body>
