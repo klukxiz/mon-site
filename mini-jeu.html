@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini-jeu voiture réaliste</title>
+    <title>Mini-jeu voiture</title>
     <style>
         body {
             margin: 0;
@@ -15,15 +15,6 @@
         canvas {
             display: block;
             margin: 0 auto;
-        }
-
-        #car {
-            position: absolute;
-            width: 70px;
-            height: 140px;
-            background-image: url('assetsmusic/car.png'); /* Utilise une image de voiture */
-            background-size: cover;
-            transition: transform 0.1s ease;
         }
     </style>
 </head>
@@ -45,27 +36,15 @@ let car = {
     dx: 0,
     dy: 0,
     angle: 0, // Pour la rotation de la voiture
-    image: new Image(),
 };
 
-// Charger l'image de la voiture
-car.image.src = 'assetsmusic/car.png'; // Assure-toi que l'image est dans le dossier "assets"
-
-// Vérifier que l'image est bien chargée avant de la dessiner
-car.image.onload = function() {
-    console.log("Image chargée avec succès !");
-};
-
-// Obstacle
-let obstacles = [];
-let score = 0;
-
-// Fonction pour dessiner la voiture
+// Fonction pour dessiner la voiture (rectangle simple pour tester)
 function drawCar() {
     ctx.save();
     ctx.translate(car.x + car.width / 2, car.y + car.height / 2); // Déplacer le centre de rotation
     ctx.rotate(car.angle); // Appliquer la rotation
-    ctx.drawImage(car.image, -car.width / 2, -car.height / 2, car.width, car.height); // Dessiner la voiture
+    ctx.fillStyle = "red"; // Remplacer par un simple carré rouge
+    ctx.fillRect(-car.width / 2, -car.height / 2, car.width, car.height); // Dessiner la voiture
     ctx.restore();
 }
 
@@ -80,69 +59,11 @@ function moveCar() {
     if (car.y + car.height > canvas.height) car.y = canvas.height - car.height;
 }
 
-// Fonction pour générer des obstacles
-function generateObstacles() {
-    let obstacleWidth = Math.random() * 100 + 50;
-    let obstacleX = Math.random() * (canvas.width - obstacleWidth);
-    obstacles.push({x: obstacleX, y: -100, width: obstacleWidth, height: 30});
-}
-
-// Fonction pour dessiner les obstacles
-function drawObstacles() {
-    for (let i = 0; i < obstacles.length; i++) {
-        ctx.fillStyle = "red";
-        ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
-    }
-}
-
-// Fonction pour faire tomber les obstacles
-function moveObstacles() {
-    for (let i = 0; i < obstacles.length; i++) {
-        obstacles[i].y += 2;
-        if (obstacles[i].y > canvas.height) {
-            obstacles.splice(i, 1);
-            score++;
-        }
-    }
-}
-
-// Fonction pour vérifier la collision entre la voiture et les obstacles
-function checkCollision() {
-    for (let i = 0; i < obstacles.length; i++) {
-        if (car.x < obstacles[i].x + obstacles[i].width &&
-            car.x + car.width > obstacles[i].x &&
-            car.y < obstacles[i].y + obstacles[i].height &&
-            car.y + car.height > obstacles[i].y) {
-            // Collision détectée
-            endGame();
-        }
-    }
-}
-
-// Fonction pour afficher le score
-function drawScore() {
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, 10, 30);
-}
-
-// Fonction pour arrêter le jeu
-function endGame() {
-    ctx.fillStyle = "black";
-    ctx.font = "30px Arial";
-    ctx.fillText("Game Over! Score: " + score, canvas.width / 2 - 150, canvas.height / 2);
-    clearInterval(gameInterval); // Arrête le jeu
-}
-
 // Fonction pour mettre à jour le jeu
 function updateGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawCar();
     moveCar();
-    drawObstacles();
-    moveObstacles();
-    checkCollision();
-    drawScore();
 }
 
 // Fonctions pour contrôler la voiture avec les touches fléchées
@@ -177,9 +98,6 @@ document.addEventListener("keyup", function(event) {
 let gameInterval = setInterval(function() {
     updateGame();
 }, 1000 / 60); // 60 FPS
-
-// Générer des obstacles toutes les 2 secondes
-setInterval(generateObstacles, 2000);
 
 </script>
 
