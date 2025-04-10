@@ -11,31 +11,45 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            flex-direction: column; /* Pour aligner le jeu et autres sections */
+            min-height: 100vh;
             background-color: #f4f4f4;
-            flex-direction: column; /* Pour aligner le jeu au centre avec le reste du site */
+            font-family: Arial, sans-serif;
         }
 
         canvas {
             border: 2px solid black;
             background-color: #e0e0e0;
-            width: 800px; /* Fixer la largeur du canvas */
-            height: 600px; /* Fixer la hauteur du canvas */
+            width: 800px; /* Fixe la largeur du canvas */
+            height: 600px; /* Fixe la hauteur du canvas */
+            margin-bottom: 20px;
         }
 
-        /* Ajout d'un style pour éviter que le canvas dépasse */
+        /* Conteneur de jeu avec une taille définie */
         .game-container {
-            position: relative;
             width: 800px;
             height: 600px;
             overflow: hidden;
+            position: relative;
+        }
+
+        .site-content {
+            margin-top: 20px; /* Marge pour séparer le contenu du site du jeu */
         }
     </style>
 </head>
 <body>
 
+<!-- Conteneur du mini-jeu -->
 <div class="game-container">
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+</div>
+
+<!-- Contenu du site -->
+<div class="site-content">
+    <h1>Bienvenue sur le site de Klukxiz</h1>
+    <p>Explorez plus de contenus et amusez-vous avec nos mini-jeux !</p>
+    <a href="index.html">Retour à l'accueil</a>
 </div>
 
 <script>
