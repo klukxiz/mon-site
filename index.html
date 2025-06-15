@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Super Site</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Ajout de Font Awesome pour l'icône de recherche -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         body {
@@ -13,6 +12,18 @@
             background-color: #f4f4f4;
             padding-top: 70px;
             text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+
+        .dark-mode .anime,
+        .dark-mode .footer {
+            background-color: #1e1e1e;
+            color: white;
         }
 
         .hero-section {
@@ -39,20 +50,20 @@
         }
 
         #search-container {
-            margin-top: 50px;
+            margin-top: 30px;
             position: relative;
         }
 
-        #search {
+        #search, #search-game {
             padding: 10px;
             font-size: 16px;
             width: 300px;
             border-radius: 5px;
             border: 1px solid #ccc;
-            padding-left: 35px; /* Pour donner de l'espace pour l'icône */
+            padding-left: 35px;
         }
 
-        #search-button {
+        #search-button, #search-game-button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -70,10 +81,6 @@
             color: #ccc;
         }
 
-        #anime-results {
-            margin-top: 20px;
-        }
-
         .anime {
             display: inline-block;
             width: 200px;
@@ -87,26 +94,26 @@
 
         .anime img {
             width: 100%;
-            height: 300px;
+            height: 200px;
             object-fit: cover;
             border-radius: 5px;
         }
 
-        .anime h3 {
-            margin: 10px 0;
-            font-size: 18px;
-        }
-
-        .anime p {
-            font-size: 14px;
-            color: gray;
+        .theme-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
 
-    <!-- Barre de navigation sticky -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Bouton Thème Jour/Nuit -->
+    <button class="btn btn-secondary theme-toggle" onclick="toggleTheme()">🌙</button>
+
+    <!-- Barre de navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
             <a class="navbar-brand" href="#">Mon Super Site</a>
         </div>
@@ -116,38 +123,39 @@
     <section class="hero-section">
         <div class="container">
             <h1 class="display-4">Bienvenue sur mon Super Site</h1>
-            <p class="lead">Ceci est un site créé avec **Bootstrap** et un peu de style personnalisé. Explorez et profitez !</p>
+            <p class="lead">Ceci est un site créé avec <strong>Bootstrap</strong> et un peu de style personnalisé.</p>
             <a href="#about" class="btn btn-custom btn-lg">Découvrir plus</a>
         </div>
     </section>
 
-    <!-- About Section -->
+    <!-- À propos -->
     <section id="about" class="container my-5">
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-6 mx-auto">
                 <h2>Qui suis-je ?</h2>
                 <p>Je suis Klukxiz, passionné par les jeux vidéo, la création de contenu, et la technologie.</p>
             </div>
         </div>
     </section>
 
-    <!-- Mini-Jeux Section -->
-    <section id="mini-games" class="container my-5">
+    <!-- Mes projets -->
+    <section id="projects" class="container my-5">
+        <h2>Mes Projets</h2>
         <div class="row">
-            <div class="col-lg-6">
-                <h2>Mini-jeu Voiture</h2>
+            <div class="col-md-6">
+                <h3>Mini-jeu Voiture</h3>
                 <p>Évite les obstacles et essaie de rouler aussi longtemps que possible !</p>
-                <a href="mini-jeu-voiture.html" class="btn btn-custom btn-lg">Jouer à Voiture</a>
+                <a href="mini-jeu-voiture.html" class="btn btn-custom">Jouer à Voiture</a>
             </div>
-            <div class="col-lg-6">
-                <h2>Mini-jeu Pac-Man</h2>
+            <div class="col-md-6">
+                <h3>Mini-jeu Pac-Man</h3>
                 <p>Attrape toutes les pastilles tout en évitant les fantômes !</p>
-                <a href="mini-jeu-pacman.html" class="btn btn-custom btn-lg">Jouer à Pac-Man</a>
+                <a href="mini-jeu-pacman.html" class="btn btn-custom">Jouer à Pac-Man</a>
             </div>
         </div>
     </section>
 
-    <!-- Recherche d'Anime -->
+    <!-- Recherche Anime -->
     <section id="anime-search" class="container my-5">
         <h2>Recherche d'Anime</h2>
         <div id="search-container">
@@ -155,8 +163,18 @@
             <input type="text" id="search" placeholder="Recherchez un anime...">
             <button id="search-button">Rechercher</button>
         </div>
-
         <div id="anime-results"></div>
+    </section>
+
+    <!-- Recherche Jeu Vidéo -->
+    <section id="game-search" class="container my-5">
+        <h2>Recherche de Jeux Vidéo</h2>
+        <div id="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search-game" placeholder="Recherchez un jeu vidéo...">
+            <button id="search-game-button">Rechercher</button>
+        </div>
+        <div id="game-results"></div>
     </section>
 
     <!-- Footer -->
@@ -164,77 +182,100 @@
         <p>&copy; 2025 Mon Super Site. Tous droits réservés.</p>
     </div>
 
-    <!-- JavaScript pour la séquence de touches et la recherche d'anime -->
+    <!-- JavaScript -->
     <script>
-        let keySequence = [];
-        const secretSequenceVoiture = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; // Séquence pour le jeu de voiture
-        const secretSequencePacman = ['ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; // Séquence pour le jeu Pac-Man
+        // Thème jour/nuit
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
 
-        // Fonction pour gérer la séquence de touches
+        // Séquences secrètes
+        let keySequence = [];
+        const secretSequenceVoiture = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+        const secretSequencePacman = ['ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+
         document.addEventListener('keydown', function(event) {
             keySequence.push(event.key);
-            if (keySequence.length > secretSequenceVoiture.length) {
-                keySequence.shift(); // On retire la première touche si la séquence est trop longue
-            }
+            if (keySequence.length > 4) keySequence.shift();
 
-            // Si la séquence pour le jeu de voiture est correcte
             if (keySequence.join(',') === secretSequenceVoiture.join(',')) {
-                // Rediriger vers le mini-jeu de la voiture
                 window.location.href = "mini-jeu-voiture.html";
             }
 
-            // Si la séquence pour le jeu Pac-Man est correcte
             if (keySequence.join(',') === secretSequencePacman.join(',')) {
-                // Rediriger vers le mini-jeu de Pac-Man
                 window.location.href = "mini-jeu-pacman.html";
             }
         });
 
-        // Fonction pour rechercher un anime
+        // Recherche anime
         document.getElementById('search-button').addEventListener('click', searchAnime);
 
         function searchAnime() {
             const query = document.getElementById('search').value;
-
             if (!query) return;
 
             fetch(`https://api.jikan.moe/v4/anime?q=${query}&limit=5`)
                 .then(response => response.json())
-                .then(data => {
-                    const animeResults = data.data;
-                    displayResults(animeResults);
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la récupération des animes:', error);
-                });
+                .then(data => displayResults(data.data))
+                .catch(error => console.error('Erreur anime:', error));
         }
 
         function displayResults(animes) {
-            const resultsContainer = document.getElementById('anime-results');
-            resultsContainer.innerHTML = '';
-
+            const container = document.getElementById('anime-results');
+            container.innerHTML = '';
             if (animes.length === 0) {
-                resultsContainer.innerHTML = '<p>Aucun anime trouvé.</p>';
+                container.innerHTML = '<p>Aucun anime trouvé.</p>';
                 return;
             }
 
             animes.forEach(anime => {
-                const animeDiv = document.createElement('div');
-                animeDiv.classList.add('anime');
-
-                animeDiv.innerHTML = `
+                const div = document.createElement('div');
+                div.classList.add('anime');
+                div.innerHTML = `
                     <img src="${anime.images.jpg.image_url}" alt="${anime.title}">
                     <h3>${anime.title}</h3>
-                    <p>${anime.year}</p>
-                    <p>${anime.genres.map(genre => genre.name).join(', ')}</p>
+                    <p>${anime.year || 'Année inconnue'}</p>
+                    <p>${anime.genres.map(g => g.name).join(', ')}</p>
                     <a href="${anime.url}" target="_blank">Voir plus</a>
                 `;
+                container.appendChild(div);
+            });
+        }
 
-                resultsContainer.appendChild(animeDiv);
+        // Recherche jeux vidéo
+        document.getElementById('search-game-button').addEventListener('click', searchGame);
+
+        function searchGame() {
+            const query = document.getElementById('search-game').value;
+            if (!query) return;
+
+            fetch(`https://api.rawg.io/api/games?search=${query}&page_size=5`)
+                .then(res => res.json())
+                .then(data => displayGameResults(data.results))
+                .catch(err => console.error('Erreur jeux:', err));
+        }
+
+        function displayGameResults(games) {
+            const container = document.getElementById('game-results');
+            container.innerHTML = '';
+            if (!games || games.length === 0) {
+                container.innerHTML = '<p>Aucun jeu trouvé.</p>';
+                return;
+            }
+
+            games.forEach(game => {
+                const div = document.createElement('div');
+                div.classList.add('anime');
+                div.innerHTML = `
+                    <img src="${game.background_image || 'https://via.placeholder.com/200'}" alt="${game.name}">
+                    <h3>${game.name}</h3>
+                    <p>${game.released || 'Date inconnue'}</p>
+                    <p>${game.platforms?.map(p => p.platform.name).join(', ') || ''}</p>
+                    <a href="https://rawg.io/games/${game.slug}" target="_blank">Voir plus</a>
+                `;
+                container.appendChild(div);
             });
         }
     </script>
-
 </body>
 </html>
-
